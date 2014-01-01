@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\LibGem\Src\GemAllocator.cpp" />
+    <ClCompile Include="..\..\LibGem\Src\GemArcBallController.cpp" />
+    <ClCompile Include="..\..\LibGem\Src\GemCameraNode.cpp" />
+    <ClCompile Include="..\..\LibGem\Src\GemController.cpp" />
+    <ClCompile Include="..\..\LibGem\Src\GemEmpty.cpp" />
+    <ClCompile Include="..\..\LibGem\Src\GemLightNode.cpp" />
+    <ClCompile Include="..\..\LibGem\Src\GemLoader.cpp" />
+    <ClCompile Include="..\..\LibGem\Src\GemMeshLoader.cpp" />
+    <ClCompile Include="..\..\LibGem\Src\GemOrbitalController.cpp" />
+    <ClCompile Include="..\..\LibGem\Src\GemRenderStage.cpp" />
+    <ClCompile Include="..\..\LibGem\Src\GemSceneNode.cpp" />
+    <ClCompile Include="..\..\LibGem\Src\GemShaderLoader.cpp" />
+    <ClCompile Include="..\..\LibGem\Src\GemTextureLoader.cpp" />
+    <ClCompile Include="..\..\LibGem\Src\GemTransformNode.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\LibGem\Include\Gem.h" />
+    <ClInclude Include="..\..\LibGem\Include\GemAllocator.h" />
+    <ClInclude Include="..\..\LibGem\Include\GemArcBallController.h" />
+    <ClInclude Include="..\..\LibGem\Include\GemCameraNode.h" />
+    <ClInclude Include="..\..\LibGem\Include\GemController.h" />
+    <ClInclude Include="..\..\LibGem\Include\GemEmpty.h" />
+    <ClInclude Include="..\..\LibGem\Include\GemLightNode.h" />
+    <ClInclude Include="..\..\LibGem\Include\GemLoader.h" />
+    <ClInclude Include="..\..\LibGem\Include\GemMeshLoader.h" />
+    <ClInclude Include="..\..\LibGem\Include\GemOrbitalController.h" />
+    <ClInclude Include="..\..\LibGem\Include\GemPrerequisites.h" />
+    <ClInclude Include="..\..\LibGem\Include\GemRenderStage.h" />
+    <ClInclude Include="..\..\LibGem\Include\GemSceneNode.h" />
+    <ClInclude Include="..\..\LibGem\Include\GemShaderLoader.h" />
+    <ClInclude Include="..\..\LibGem\Include\GemTextureLoader.h" />
+    <ClInclude Include="..\..\LibGem\Include\GemTransformNode.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{817EB327-196B-4D08-8700-036F6C5DD711}</ProjectGuid>
+    <RootNamespace>Gem</RootNamespace>
+    <ProjectName>LibGem</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(ProjectDir)\..\..\$(ProjectName)\Lib\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)32d</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(ProjectDir)\..\..\$(ProjectName)\Lib\$(Configuration)\$(Platform)\</OutDir>
+    <TargetName>$(ProjectName)32</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(ProjectDir)\..\..\LibMem\include\;$(ProjectDir)\..\..\LibGem\include\;$(ProjectDir)\..\..\..\Vendor\glLoadGen_1_9\include\;$(ProjectDir)\..\..\..\Vendor\glew-1.10.0\include\;$(ProjectDir)\..\..\..\Vendor\newmat-1.1\msvc2013\include\</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(ProjectDir)\..\..\LibMem\include\;$(ProjectDir)\..\..\LibGem\include\;$(ProjectDir)\..\..\..\Vendor\glLoadGen_1_9\include\;$(ProjectDir)\..\..\..\Vendor\glew-1.10.0\include\;$(ProjectDir)\..\..\..\Vendor\newmat-1.1\msvc2013\include\</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

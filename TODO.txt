@@ -1,0 +1,113 @@
+
+FUTURE
+=======
+
+Qt samples transparent window
+
+Syntax highlighting for shaders
+
+Passthrough shaders for normal mesh with position, normal, texcoord
+
+renderStage transform feedback system
+	renderStage::setTransformFeedback()
+
+renderStage framebufffer object system
+	renderStage::setFrameBufferObject()
+
+renderStage texture buffer object system
+	renderStage::setTextureBufferObject
+
+renderStage default stage
+	renderStage.enableCullFace()
+	renderStage.disableCullFace()
+	renderStage.setCullFaceValue()
+	renderStage.enableClearDepth()
+	renderStage.disableClearDepth()
+	renderStage.setClearDepth()
+	renderStage.enableClearColor()
+	renderStage.disableClearColor()
+	renderStage.setClearColor()
+	renderStage.setPolygonMode()
+	renderStage.enableRasterizerDiscard()
+	renderStage.disableRasterizerDiscard()
+
+
+30/12
+=====
+Set up release environment
+Directory setup that works with NSIGHT and deployment
+
+
+29/12
+=====
+Enable BMP R8 och RGB8 rendering
+Enable PFM R32F and RGB32F rendering
+Solve the mipmap + DXT mess (RenderStage::declareTextureData() for solution)
+Create GEM_THROW() macro to throw runtime_error and change all catch clauses
+TextureLoader::createMipLevels()
+renderStage::undeclareDexture()
+
+
+28/12
+=====
+renderStage texture system
+	renderStage::setTexture()
+	renderStage::declareTextures()
+	remderStage::bindTextures()
+
+
+27/12
+=====
+class TextureLoader
+	TextureLoader::load()
+	TextureLoader::loadBMP()
+	TextureLoader::loadPFM()
+	TextureLoader::loadDXT1()
+	TextureLoader::create()
+	TextureLoader::save()
+	TextureLoader::saveBMP()
+	TextureLoader::savePFM()
+
+
+26/12
+======
+renderstage::setUniform system
+renderStage::declareUniforms()
+remderStage::bindUniforms()
+
+
+25/12
+======
+Allocator data progress system
+1. writes sets isChanged flag, reads unsets flag
+PRO: Very simple to use, just check isChanged() to know if data was updated
+CON: ANY read will reset flag, so you might not get isChanged()==true where you
+	 expect it.
+2. same as 1 but let the application choose to reset the flag
+PRO: Simple to use
+CON: Only allows a single place for progress check.
+3. keep track of writeCount counter, increase in all writes
+
+PRO: The application can keep track of progress at any point in the code
+CON: Harder to use, each application needs to save external counter to compare
+	 against.
+4. same as 3 but with reset functions
+PRO: The application can keep track of progress at any point in the code
+	 Simple to use, no external variables required.
+CON: One place of reset means you can't have multiple points where you check 
+     progress.
+Implemented #4
+
+
+22/12
+======
+meshloader::save
+meshloader::reload
+shaderloader::loader
+GLOABL ERROR SYSTEM
+bind vertex attributes (done generically, use layout specifier to access)
+
+
+
+
+

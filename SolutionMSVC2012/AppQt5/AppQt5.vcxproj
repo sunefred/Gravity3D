@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\AppQt5\Src\AppQt5.cpp" />
+    <ClCompile Include="..\..\AppQt5\Src\main.cpp" />
+    <ClCompile Include="GeneratedFiles\Debug\moc_AppQt5.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\Src\AppQt5\shaders\basic.frag" />
+    <None Include="..\..\..\Src\AppQt5\shaders\basic.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\AppQt5\Include\AppQt5.h">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(ProjectDir)\..\..\..\Vendor\Qt5.2.0\msvc2010_opengl\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_DLL -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB "-I.\GeneratedFiles" "-I." "-I$(ProjectDir)\..\..\..\Vendor\Qt5.2.0\msvc2010_opengl\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(ProjectDir)\..\..\..\Vendor\Qt5.2.0\msvc2010_opengl\include\QtCore" "-I$(ProjectDir)\..\..\..\Vendor\Qt5.2.0\msvc2010_opengl\include\QtGui" "-I$(ProjectDir)\..\..\..\Vendor\Qt5.2.0\msvc2010_opengl\include\QtWidget" "-I$(ProjectDir)\..\..\..\Vendor\Qt5.2.0\msvc2010_opengl\include\QtOpenGL"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)\..\..\..\Vendor\Qt5.2.0\msvc2010_opengl\bin\moc.exe;%(FullPath)</AdditionalInputs>
+    </CustomBuild>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{8B7BBAA4-B809-4423-A2D1-2C3C69F3CAC8}</ProjectGuid>
+    <RootNamespace>AppBasic</RootNamespace>
+    <ProjectName>AppQt5</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IntDir>$(Configuration)\</IntDir>
+    <OutDir>$(ProjectDir)\..\..\$(ProjectName)\Bin\$(Configuration)\$(Platform)\</OutDir>
+    <TargetName>$(ProjectName)</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(ProjectDir)\..\..\$(ProjectName)\Bin\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(ProjectDir)\..\..\LibMem\include\;$(ProjectDir)\..\..\LibGem\include\;$(ProjectDir)\..\..\AppQt5\include\;$(ProjectDir)\..\..\..\Vendor\glew-1.10.0\include\;$(ProjectDir)\..\..\..\Vendor\Qt5.2.0\msvc2010_opengl\include\;$(ProjectDir)\..\..\..\Vendor\newmat-1.1\msvc2013\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(ProjectDir)\..\..\LibMem\Lib\$(Configuration)\$(Platform)\;$(ProjectDir)\..\..\LibGem\Lib\\$(Configuration)\$(Platform)\;$(ProjectDir)\..\..\..\Vendor\newmat-1.1\msvc2013\lib\;$(ProjectDir)\..\..\..\Vendor\glew-1.10.0\lib\Release\Win32\;$(ProjectDir)\..\..\..\Vendor\Qt5.2.0\msvc2010_opengl\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>LibMem32d.lib;LibGem32d.lib;newmat11d.lib;glew32.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Widgetsd.lib;Qt5OpenGLd.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(ProjectDir)\..\..\LibMem\include\;$(ProjectDir)\..\..\LibGem\include\;$(ProjectDir)\..\..\AppQt5\include\;$(ProjectDir)\..\..\..\Vendor\glew-1.10.0\include\;$(ProjectDir)\..\..\..\Vendor\Qt5.2.0\msvc2010_opengl\include\;$(ProjectDir)\..\..\..\Vendor\newmat-1.1\msvc2013\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>$(ProjectDir)\..\..\LibMem\Lib\$(Configuration)\$(Platform)\;$(ProjectDir)\..\..\LibGem\Lib\\$(Configuration)\$(Platform)\;$(ProjectDir)\..\..\..\Vendor\newmat-1.1\msvc2013\lib\;$(ProjectDir)\..\..\..\Vendor\glew-1.10.0\lib\Release\Win32\;$(ProjectDir)\..\..\..\Vendor\Qt5.2.0\msvc2010_opengl\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>LibMem32.lib;LibGem32.lib;newmat11.lib;glew32.lib;Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;Qt5OpenGL.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
