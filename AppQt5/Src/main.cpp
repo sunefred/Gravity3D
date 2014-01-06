@@ -81,7 +81,7 @@ int main( int argc, char* argv[] )
 	// method 2 (qt mainloop, ogl is main window, relies on timer)
 	//QApplication app(argc, argv);
 	//AppBasic ogl;
-	//ogl.show();
+	//oshow();
 	//return app.exec();
 
 }

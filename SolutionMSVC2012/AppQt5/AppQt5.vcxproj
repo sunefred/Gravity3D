@@ -13,18 +13,24 @@
   <ItemGroup>
     <ClCompile Include="..\..\AppQt5\Src\AppQt5.cpp" />
     <ClCompile Include="..\..\AppQt5\Src\main.cpp" />
-    <ClCompile Include="GeneratedFiles\Debug\moc_AppQt5.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\..\Src\AppQt5\shaders\basic.frag" />
-    <None Include="..\..\..\Src\AppQt5\shaders\basic.vert" />
+    <ClCompile Include="GeneratedFiles\Release\moc_AppQt5.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\..\AppQt5\Include\AppQt5.h">
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(ProjectDir)\..\..\..\Vendor\Qt5.2.0\msvc2010_opengl\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_DLL -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB "-I.\GeneratedFiles" "-I." "-I$(ProjectDir)\..\..\..\Vendor\Qt5.2.0\msvc2010_opengl\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(ProjectDir)\..\..\..\Vendor\Qt5.2.0\msvc2010_opengl\include\QtCore" "-I$(ProjectDir)\..\..\..\Vendor\Qt5.2.0\msvc2010_opengl\include\QtGui" "-I$(ProjectDir)\..\..\..\Vendor\Qt5.2.0\msvc2010_opengl\include\QtWidget" "-I$(ProjectDir)\..\..\..\Vendor\Qt5.2.0\msvc2010_opengl\include\QtOpenGL"</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)\..\..\..\Vendor\Qt5.2.0\msvc2010_opengl\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(ProjectDir)\..\..\..\Vendor\Qt5.2.0\msvc2010_opengl\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_DLL -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB "-I.\GeneratedFiles" "-I." "-I$(ProjectDir)\..\..\..\Vendor\Qt5.2.0\msvc2010_opengl\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(ProjectDir)\..\..\..\Vendor\Qt5.2.0\msvc2010_opengl\include\QtCore" "-I$(ProjectDir)\..\..\..\Vendor\Qt5.2.0\msvc2010_opengl\include\QtGui" "-I$(ProjectDir)\..\..\..\Vendor\Qt5.2.0\msvc2010_opengl\include\QtWidget" "-I$(ProjectDir)\..\..\..\Vendor\Qt5.2.0\msvc2010_opengl\include\QtOpenGL"</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)\..\..\..\Vendor\Qt5.2.0\msvc2010_opengl\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
     </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\AppQt5\Shaders\pass_through.frag" />
+    <None Include="..\..\AppQt5\Shaders\pass_through.geom" />
+    <None Include="..\..\AppQt5\Shaders\pass_through.tesc" />
+    <None Include="..\..\AppQt5\Shaders\pass_through.tese" />
+    <None Include="..\..\AppQt5\Shaders\pass_through.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{8B7BBAA4-B809-4423-A2D1-2C3C69F3CAC8}</ProjectGuid>

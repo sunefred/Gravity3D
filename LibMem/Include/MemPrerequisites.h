@@ -60,19 +60,19 @@ MEM_BEGIN_NAMESPACE
 using namespace Mem;
 
 
-//== TYPEDEFS ==================================================================
-
-
-
 //== CLASS PRE-DEFINITIONS =====================================================
 
 // Allows use of pointers in header files without including individual .h
 // so decreases dependencies between files
-class Math;
 template<typename T,int s1,int s2> class Matrix;
 template<typename T> class Polynomial;
 template<typename T> class Quaternion;
 template<typename T,int s1> class Vector;
+
+
+//== TYPEDEFS ==================================================================
+
+
 
 
 //==============================================================================

@@ -7,7 +7,6 @@
 #ifndef GEM_PREREQUISITES_H
 #define GEM_PREREQUISITES_H
 
-
 //== GLOBAL INCLUDES ===========================================================
 
 // cpp I/O library
@@ -19,6 +18,7 @@
 // cpp containers
 #include <string>	// string
 #include <vector>	// vector
+#include <map>		// map?
 
 // cpp manipulators
 #include <iomanip> // setprecision, 
@@ -31,8 +31,8 @@
 
 // c libraries
 #include <cassert>	// assert
-#include <cmath>	// pow, sqrt, sin, cos
-#include <ctime>	// time, gmtime, localtime etc
+#include <cmath>	// pow, sqrt, sin, cos etc in std namespace
+#include <ctime>	// time, gmtime, localtime in std namespace
 
 // GL stuff
 //#include <GLXW/glxw.h>
@@ -76,10 +76,53 @@
 #define GEM_END_NAMESPACE	}
 
 
-//==============================================================================
+//== NAMESPACES ================================================================
 
 GEM_BEGIN_NAMESPACE
-using namespace Mem;
+
+/** 2-element vectors */
+using Mem::Vec2i;
+using Mem::Vec2ui;
+using Mem::Vec2f;
+using Mem::Vec2d;
+
+/** 3-element vectors */
+using Mem::Vec3i;
+using Mem::Vec3ui;
+using Mem::Vec3f;
+using Mem::Vec3d;
+
+/** 4-element vectors */
+using Mem::Vec4i;
+using Mem::Vec4ui;
+using Mem::Vec4f;
+using Mem::Vec4d;
+
+/** 2x2-element matrices */
+using Mem::Mat2i;
+using Mem::Mat2ui;
+using Mem::Mat2f;
+using Mem::Mat2d;
+
+/** 3x3-element matrices */
+using Mem::Mat3i;
+using Mem::Mat3ui;
+using Mem::Mat3f;
+using Mem::Mat3d;
+
+/** 4x4-element matrices */
+using Mem::Mat4i;
+using Mem::Mat4ui;
+using Mem::Mat4f;
+using Mem::Mat4d;
+
+/** only floating point Quaternions makes any sense */
+using Mem::Quatf;
+using Mem::Quatd;
+
+/** only floating point Polynomials */
+using Mem::Polyf;
+using Mem::Polyd;
 
 
 //== LOCAL DEFINES =============================================================
@@ -154,6 +197,7 @@ using namespace Mem;
 #define MAX_VERTEX_ATTRIBUTES 16
 #define MAX_TEXTURE_UNITS 32
 #define MAX_MIP_LEVELS 16
+#define MAX_FRAMEBUFFER_ATTACHMENTS 6 // 4 color, depth, stencil
 
 
 // still want to be able to use NULL when stdio.h is removed
@@ -275,6 +319,53 @@ enum TEXTURE_FORMAT
 	TEXTURE_FORMAT_RGB_DXT1			= ALLOC_FORMAT_VEC3_DXT1,
 };
 
+enum TEXTURE_UNIT
+{
+	TEXTURE_UNIT_0,
+	TEXTURE_UNIT_1,
+	TEXTURE_UNIT_2,
+	TEXTURE_UNIT_3,
+	TEXTURE_UNIT_4,
+	TEXTURE_UNIT_5,
+	TEXTURE_UNIT_6,
+	TEXTURE_UNIT_7,
+	TEXTURE_UNIT_8,
+	TEXTURE_UNIT_9,
+	TEXTURE_UNIT_10,
+	TEXTURE_UNIT_11,
+	TEXTURE_UNIT_12,
+	TEXTURE_UNIT_13,
+	TEXTURE_UNIT_14,
+	TEXTURE_UNIT_15,
+	TEXTURE_UNIT_16,
+	TEXTURE_UNIT_17,
+	TEXTURE_UNIT_18,
+	TEXTURE_UNIT_19,
+	TEXTURE_UNIT_20,
+	TEXTURE_UNIT_21,
+	TEXTURE_UNIT_22,
+	TEXTURE_UNIT_23,
+	TEXTURE_UNIT_24,
+	TEXTURE_UNIT_25,
+	TEXTURE_UNIT_26,
+	TEXTURE_UNIT_27,
+	TEXTURE_UNIT_28,
+	TEXTURE_UNIT_29,
+	TEXTURE_UNIT_30,
+	TEXTURE_UNIT_31,
+	TEXTURE_UNIT_32,
+};
+
+enum FRAMEBUFFER_ATTACHMENT
+{
+	FRAMEBUFFER_ATTACHMENT_COLOR0,
+	FRAMEBUFFER_ATTACHMENT_COLOR1,
+	FRAMEBUFFER_ATTACHMENT_COLOR2,
+	FRAMEBUFFER_ATTACHMENT_COLOR3,
+	FRAMEBUFFER_ATTACHMENT_DEPTH,
+	FRAMEBUFFER_ATTACHMENT_STENCIL,
+};
+
 enum FILE_FORMAT
 {
 	FILE_FORMAT_NONE,
@@ -359,7 +450,7 @@ enum TRANSFORM_MODE
 // so decreases dependencies between files
 
 // Rendering
-class RenderStage;
+class RenderState;
 
 // Loaders
 class Allocator;
@@ -379,6 +470,9 @@ class OrbitalController;
 class ArcBallController;
 
 // Animators
+
+// Utility
+template<typename T> class Tracker;
 
 
 //== TYPEDEFS ==================================================================

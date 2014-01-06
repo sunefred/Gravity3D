@@ -55,6 +55,28 @@ AppQt5::initializeGL()
 	}
 
 
+	// Why isn' this core?
+	if ( GL_EXT_texture_compression_s3tc )
+	{
+		GEM_CONSOLE( "S3TC texture compression supported." );
+	}
+	else
+	{
+		GEM_ERROR( "S3TC texture compression not supported." );
+	}
+
+
+	// Why isn' this core?
+	if ( GL_EXT_texture_compression_s3tc )
+	{
+		GEM_CONSOLE( "S3TC texture compression supported." );
+	}
+	else
+	{
+		GEM_ERROR( "S3TC texture compression not supported." );
+	}
+
+
 	//// z-buffer
 	//glEnable(GL_DEPTH_TEST);		// enables z-buffer
 	//glDepthMask(GL_TRUE);			// place new values in z-buffer
@@ -100,14 +122,14 @@ AppQt5::initializeGL()
 
 	// Setup camera
 	cam_.translate( 0, 0, 20 );
-	cam_.setFrustum( 20 * Math::DEG2RAD, 0.1, 1000 );
-	camPivot_.rotate( -5 * Math::DEG2RAD, 1, 0, 0 );
+	cam_.setFrustum( 20 * Mem::DEG2RAD, 0.1, 1000 );
+	camPivot_.rotate( -5 * Mem::DEG2RAD, 1, 0, 0 );
 
 
 	// Setup lights
 	lgt_.translate( 0, 0, 20 );
 	//lgt_.setColor( 0.90, 0.90, 0.80 );
-	lgtPivot_.rotate( 20 * Math::DEG2RAD, 0, 1, 0 );
+	lgtPivot_.rotate( 20 * Mem::DEG2RAD, 0, 1, 0 );
 
 
 	// Navigation controller
@@ -117,25 +139,25 @@ AppQt5::initializeGL()
 
 	// Load resources
 	mesh_.load( pathDataIn_ + "box_quads.obj" );
-	vertexShader_.load( pathShaders_ + "basic.vert" );
-	tessCtrlShader_.load( pathShaders_ + "basic.tesc" );
-	tessEvalShader_.load( pathShaders_ + "basic.tese" );
-	geometryShader_.load( pathShaders_ + "basic.geom" );
-	fragmentShader_.load( pathShaders_ + "basic.frag" );
+	vertexShader_.load( pathShaders_ + "pass_through.vert" );
+	tessCtrlShader_.load( pathShaders_ + "pass_through.tesc" );
+	tessEvalShader_.load( pathShaders_ + "pass_through.tese" );
+	geometryShader_.load( pathShaders_ + "pass_through.geom" );
+	fragmentShader_.load( pathShaders_ + "pass_through.frag" );
 
 
 	// Setup render stages
-	renderStage_.setMesh( &mesh_ );
-	renderStage_.setVertexShader( &vertexShader_ );
-	renderStage_.setTessCtrlShader( &tessCtrlShader_ );
-	renderStage_.setTessEvalShader( &tessEvalShader_ );
-	renderStage_.setGeometryShader( &geometryShader_ );
-	renderStage_.setFragmentShader( &fragmentShader_ );
-	renderStage_.setUniform( objPivot_.getDerivedTransformPtr(),
+	renderState_.setMesh( &mesh_ );
+	renderState_.setVertexShader( &vertexShader_ );
+	renderState_.setTessCtrlShader( &tessCtrlShader_ );
+	renderState_.setTessEvalShader( &tessEvalShader_ );
+	renderState_.setGeometryShader( &geometryShader_ );
+	renderState_.setFragmentShader( &fragmentShader_ );
+	renderState_.setUniform( objPivot_.getDerivedTransformPtr(),
 							 "modelMatrix" );
-	renderStage_.setUniform( cam_.getViewMatrixPtr(), "viewMatrix" );
-	renderStage_.setUniform( cam_.getProjMatrixPtr(), "projMatrix" );
-	renderStage_.setUniform( &tesselationLevel_, "tesselationLevel" );
+	renderState_.setUniform( cam_.getViewMatrixPtr(), "viewMatrix" );
+	renderState_.setUniform( cam_.getProjMatrixPtr(), "projMatrix" );
+	renderState_.setUniform( &tesselationLevel_, "tesselationLevel" );
 }
 
 
@@ -165,8 +187,8 @@ AppQt5::paintGL()
 	//Primitives::drawBackground();
 
 
-	// Draw each Render Stage
-	renderStage_.draw();
+	// Draw each Render State
+	renderState_.draw();
 
 
 	// draw coordinate grid
@@ -254,8 +276,8 @@ AppQt5::wheelEvent( QWheelEvent* _e )
 {
 	if ( _e->modifiers() == KEYBOARD_MODIFIER_NONE )
 	{
-		tesselationLevel_ = tesselationLevel_+Math::signum( _e->delta() );
-		tesselationLevel_ = Math::clamp<float>( tesselationLevel_, 1, 20 );
+		tesselationLevel_ = tesselationLevel_+Mem::signum( _e->delta() );
+		tesselationLevel_ = Mem::clamp<float>( tesselationLevel_, 1, 20 );
 	}
 
 	orbi_.mouseWheelFunc( _e->delta(), _e->pos().x(), _e->pos().y(),

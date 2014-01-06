@@ -1,59 +1,118 @@
+MILESTONES
+===========
 
-FUTURE
-=======
+1. RenderState
+------------
+RenderState fully functional with Renderbuffer, TransforFeedback and
+BufferedTexture.
+Debug output from RenderState to show its connections.
+A Demo application showcasing each.
 
-Qt samples transparent window
 
+2. Primitive creation
+------------------
+Find a simple way to manage creation of Primitives, possibly including
+centralization of all RenderState and resource creation.
+Write creation code for
+	cube
+	sphere
+	axis
+	transform controller
+
+
+3. Virtual Texturing
+-----------------
+
+
+4. Mocap Animator
+---------------
+
+
+5. Skeleton Animator
+------------------
+
+
+
+6/1
+====
+
+
+5/1
+====
+Moved utility functions for Mem and Gem to their respective global files rather
+that forcing them into a wrapper class.
+New classes: FramebufferState, fully integrated
+RenderState framebufffer object system
+	renderState::setFramebuffer() etc
+
+
+2-4/1
+=====
+Reworked RenderState class for full use of buffer objects
+- A single RAM blob
+- A single GPU blob (resident as a buffer)
+- Multiple GPU bind points for the same buffer
+	a buffer bound to framebuffer + bound as texture in the next frame
+- load/save File <---> RAM blob
+- upload/download RAM blob <---> OpenGL managed blob
+- pack/unpack OpenGL managed blob <---> texture/framebuffer
+new classes: VertexState, ProgramState, UniformState, TextureState
+new classes: Tracker (used for state tracking)
 Syntax highlighting for shaders
 
+
+31/12
+=====
 Passthrough shaders for normal mesh with position, normal, texcoord
-
-renderStage transform feedback system
-	renderStage::setTransformFeedback()
-
-renderStage framebufffer object system
-	renderStage::setFrameBufferObject()
-
-renderStage texture buffer object system
-	renderStage::setTextureBufferObject
-
-renderStage default stage
-	renderStage.enableCullFace()
-	renderStage.disableCullFace()
-	renderStage.setCullFaceValue()
-	renderStage.enableClearDepth()
-	renderStage.disableClearDepth()
-	renderStage.setClearDepth()
-	renderStage.enableClearColor()
-	renderStage.disableClearColor()
-	renderStage.setClearColor()
-	renderStage.setPolygonMode()
-	renderStage.enableRasterizerDiscard()
-	renderStage.disableRasterizerDiscard()
 
 
 30/12
 =====
+Set up git with correct .gitignore
 Set up release environment
-Directory setup that works with NSIGHT and deployment
+Directory structure that works with NSIGHT and deployment
+Proj1
+|---Bin
+|   |---Debug
+|	|	|---Win32
+|	|	|---Win64
+|	|---Release
+|		|---Win32
+|		|---Win64
+|---Data
+|---Include
+|---Out
+|---Shaders
+|---Src
+Proj2
+.
+.
+SolutionMSVC2012
+|---Proj1
+|---Proj2
+.
+.
+SolutionGCC
+.
+.
 
 
 29/12
 =====
 Enable BMP R8 och RGB8 rendering
 Enable PFM R32F and RGB32F rendering
-Solve the mipmap + DXT mess (RenderStage::declareTextureData() for solution)
+Solve the mipmap + DXT mess (RenderState::declareTextureData() for solution)
 Create GEM_THROW() macro to throw runtime_error and change all catch clauses
 TextureLoader::createMipLevels()
-renderStage::undeclareDexture()
+renderState::undeclareDexture()
 
 
 28/12
 =====
-renderStage texture system
-	renderStage::setTexture()
-	renderStage::declareTextures()
-	remderStage::bindTextures()
+renderState texture system
+	renderState::setTexture()
+	renderState::declareTextures()
+	remderState::bindTextures()
 
 
 27/12
@@ -72,8 +131,8 @@ class TextureLoader
 26/12
 ======
 renderstage::setUniform system
-renderStage::declareUniforms()
-remderStage::bindUniforms()
+renderState::declareUniforms()
+remderState::bindUniforms()
 
 
 25/12
@@ -87,7 +146,6 @@ CON: ANY read will reset flag, so you might not get isChanged()==true where you
 PRO: Simple to use
 CON: Only allows a single place for progress check.
 3. keep track of writeCount counter, increase in all writes
-
 PRO: The application can keep track of progress at any point in the code
 CON: Harder to use, each application needs to save external counter to compare
 	 against.

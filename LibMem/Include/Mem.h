@@ -20,7 +20,7 @@
 
 //== INCLUDES ==================================================================
 
-#include "MemMath.h"
+#include "MemGlobals.h"
 #include "MemMatrix.h"
 #include "MemPolynomial.h"
 #include "MemVector.h"

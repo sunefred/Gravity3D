@@ -1,23 +1,23 @@
 //==============================================================================
 //
 //	This is a very simple but capable graphics engine build around setting up a
-//	RenderStage object, i.e the OpenGL state. It is written against OpenGL 4.2
+//	RenderState object, i.e the OpenGL state. It is written against OpenGL 4.2
 //	core profile, so no fixed pipile functions and it supports tesselation.
-//	The following input and output can be set on a RenderStage instance:
+//	The following input and output can be set on a RenderState instance:
 //
 //
 //	INPUT:
 //	------
 //	Vertex Data
-//	Texture Data*
 //	Shaders (Vertex, TessControl, TessEvaluation, Geometry, Fragment)
-//	Uniforms*
-//	Texture Buffer Object*
+//	Uniforms
+//	Texture Data
+//	Buffer Texture Object*
 //
 //
 //	OUTPUT:
 //	-------
-//	Frame Buffer Object*
+//	Frame Buffer Object
 //	Transform Feedback*
 //
 //
@@ -30,15 +30,15 @@
 //	a given problem. Most applications does the following.
 //
 //	1. Load or create Meshes, Textures and Shaders using Loader classes
-//	2. Connect the Loader at INPUT/OUTPUT locations on a RenderStage instance
+//	2. Connect the Loader at INPUT/OUTPUT locations on a RenderState instance
 //	3. Create Nodes and connect them in a tree structure to represent object
 //	transformations.
-//	4. Connect Node transforms to uniform variables on the RenderStage instance
+//	4. Connect Node transforms to uniform variables on the RenderState instance
 //	5. Create Controllers to capture input and connect to Cameras or SceneNodes
 //	to make them movable, pickable etc.
 //	
 //	Repeat 1-3 for each object or render pass you want to create. The
-//	RenderStage object also contains support to set OpenGL flags such depth
+//	RenderState object also contains support to set OpenGL flags such depth
 //	write, depth clear, and more so you should never have to write any OpenGL
 //	in your own application.
 //
@@ -47,16 +47,23 @@
 //	----------
 //	Holds OpenGL state. Set its INPUT/OUTPUT and call draw().
 //
-//	- RenderStage
+//	RenderState <>--- BufferState 
+//				|---- VertexState
+//				|---- ProgramState
+//				|---- UniformState
+//				|---- TextureState
+//				|---- BufferTextureState*
+//				|---- TransformFeedbackState*
+//				|---- FramebufferState
 //
 //
 //	LOADERS
 //	-------
-//	Contain Allocator objects that can connect to RenderStage INPUT/OUTPUT.
+//	Contain Allocator objects that can connect to RenderState INPUT/OUTPUT.
 //
 //	Allocator
 //	Loader .---> MeshLoader
-//	       |---> TextureLoader*
+//	       |---> TextureLoader
 //	       |---> ShaderLoader
 //	       |---> MocapLoader*
 //	       |---> SkeletonLoader*
@@ -90,6 +97,11 @@
 //	         |---> SkeletonAnimator*
 //
 //
+//  Utility
+//  --------
+//	Tracker
+//	
+//
 //	* not yet implemented
 //
 //==============================================================================
@@ -102,7 +114,7 @@
 
 
 // Rendering
-#include "GemRenderStage.h"
+#include "GemRenderState.h"
 
 // Loaders
 #include "GemAllocator.h"
@@ -122,6 +134,10 @@
 #include "GemArcBallController.h"
 
 // Animators
+
+// Utility
+#include "GemGlobals.h"
+#include "GemTracker.h"
 
 
 //==============================================================================

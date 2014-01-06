@@ -14,11 +14,14 @@
     <ClInclude Include="..\..\AppGLFW\Include\AppGLFW.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\AppGLFW\Shaders\basic.frag" />
-    <None Include="..\..\AppGLFW\Shaders\basic.geom" />
-    <None Include="..\..\AppGLFW\Shaders\basic.tesc" />
-    <None Include="..\..\AppGLFW\Shaders\basic.tese" />
-    <None Include="..\..\AppGLFW\Shaders\basic.vert" />
+    <None Include="..\..\AppGLFW\Shaders\pass_through.frag" />
+    <None Include="..\..\AppGLFW\Shaders\pass_through.geom" />
+    <None Include="..\..\AppGLFW\Shaders\pass_through.tesc" />
+    <None Include="..\..\AppGLFW\Shaders\pass_through.tese" />
+    <None Include="..\..\AppGLFW\Shaders\pass_through.vert" />
+    <None Include="..\..\AppGLFW\Shaders\solid_wireframe.frag" />
+    <None Include="..\..\AppGLFW\Shaders\solid_wireframe.geom" />
+    <None Include="..\..\AppGLFW\Shaders\solid_wireframe.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\AppGLFW\Src\AppGLFW.cpp" />

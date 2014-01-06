@@ -14,10 +14,12 @@ GEM_BEGIN_NAMESPACE
 
 TextureLoader::TextureLoader()
 : path_()
+, fileFormat_( FILE_FORMAT_NONE )
 , width_( 0 )
 , height_( 0 )
 , textureFormat_( TEXTURE_FORMAT_NONE )
 , mipLevelCount_( 0 )
+, isLoaded_( false )
 {
 }
 
@@ -32,6 +34,11 @@ TextureLoader::~TextureLoader( )
 void
 TextureLoader::clear( )
 {
+	// file information
+	path_.clear();
+	fileFormat_ = FILE_FORMAT_NONE;
+
+	// Mip level data store
 	width_ = 0;
 	height_ = 0;
 	textureFormat_ = TEXTURE_FORMAT_NONE;
@@ -40,7 +47,9 @@ TextureLoader::clear( )
 	{
 		mipLevels_[i].clear();
 	}
-	isLoaded_ = false;
+
+	// status flags
+	bool isLoaded_ = false;
 }
 
 void
@@ -136,11 +145,28 @@ TextureLoader::reload()
 {
 	if ( isLoaded_ )
 	{
+		// temporary variables that is lost on clear
+		std::string path = path_;
+		FILE_FORMAT fileFormat = fileFormat_;
+		unsigned int width = width_;
+		unsigned int height = height_;
+		TEXTURE_FORMAT textureFormat = textureFormat_;
+		unsigned int mipLevelCount = mipLevelCount_;
+
+
 		// clear before reloading
 		clear();
 
-		// and load
-		load( path_, fileFormat_ );
+
+		// load or create?
+		if ( path.empty() )
+		{
+			create( width, height, textureFormat, ( mipLevelCount_ > 1 ) );
+		}
+		else
+		{
+			load( path_, fileFormat_ );
+		}
 	}
 }
 
@@ -180,6 +206,10 @@ TextureLoader::create( const unsigned int _width, const unsigned int _height,
 		clear();
 		GEM_ERROR( e.what() );
 	}
+
+
+	// we got this far, so we are ok to setup member variables
+	isLoaded_ = true;
 }
 
 void

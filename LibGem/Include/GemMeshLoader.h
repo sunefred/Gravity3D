@@ -55,13 +55,13 @@ public:
 	unsigned int getPrimitivesCount() const
 	{ return primitivesCount_; }
 
-	Allocator* const getPrimitivesPtr()
+	Allocator* getPrimitivesPtr()
 	{ return &primitives_; }
 
 	unsigned int getVertexCount( ) const
 	{ return vertexCount_; }
 
-	Allocator* const getVertexAttributesPtr( const unsigned int _attrID )
+	Allocator* getVertexAttributesPtr( const unsigned int _attrID )
 	{ return &vertexAttributes_[_attrID]; }
 
 	bool isLoaded() const

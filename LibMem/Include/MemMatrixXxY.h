@@ -645,6 +645,7 @@ public:
 			{
 				lhs << std::setw( 10 )
 					<< std::setprecision( 5 )
+					<< std::setfill( ' ' )
 					<< std::fixed
 					<< rhs.m[i][j] << " ";
 			}

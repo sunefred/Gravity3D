@@ -16,11 +16,12 @@
     <ClCompile Include="..\..\LibGem\Src\GemCameraNode.cpp" />
     <ClCompile Include="..\..\LibGem\Src\GemController.cpp" />
     <ClCompile Include="..\..\LibGem\Src\GemEmpty.cpp" />
+    <ClCompile Include="..\..\LibGem\Src\GemGlobals.cpp" />
     <ClCompile Include="..\..\LibGem\Src\GemLightNode.cpp" />
     <ClCompile Include="..\..\LibGem\Src\GemLoader.cpp" />
     <ClCompile Include="..\..\LibGem\Src\GemMeshLoader.cpp" />
     <ClCompile Include="..\..\LibGem\Src\GemOrbitalController.cpp" />
-    <ClCompile Include="..\..\LibGem\Src\GemRenderStage.cpp" />
+    <ClCompile Include="..\..\LibGem\Src\GemRenderState.cpp" />
     <ClCompile Include="..\..\LibGem\Src\GemSceneNode.cpp" />
     <ClCompile Include="..\..\LibGem\Src\GemShaderLoader.cpp" />
     <ClCompile Include="..\..\LibGem\Src\GemTextureLoader.cpp" />
@@ -33,15 +34,17 @@
     <ClInclude Include="..\..\LibGem\Include\GemCameraNode.h" />
     <ClInclude Include="..\..\LibGem\Include\GemController.h" />
     <ClInclude Include="..\..\LibGem\Include\GemEmpty.h" />
+    <ClInclude Include="..\..\LibGem\Include\GemGlobals.h" />
     <ClInclude Include="..\..\LibGem\Include\GemLightNode.h" />
     <ClInclude Include="..\..\LibGem\Include\GemLoader.h" />
     <ClInclude Include="..\..\LibGem\Include\GemMeshLoader.h" />
     <ClInclude Include="..\..\LibGem\Include\GemOrbitalController.h" />
     <ClInclude Include="..\..\LibGem\Include\GemPrerequisites.h" />
-    <ClInclude Include="..\..\LibGem\Include\GemRenderStage.h" />
+    <ClInclude Include="..\..\LibGem\Include\GemRenderState.h" />
     <ClInclude Include="..\..\LibGem\Include\GemSceneNode.h" />
     <ClInclude Include="..\..\LibGem\Include\GemShaderLoader.h" />
     <ClInclude Include="..\..\LibGem\Include\GemTextureLoader.h" />
+    <ClInclude Include="..\..\LibGem\Include\GemTracker.h" />
     <ClInclude Include="..\..\LibGem\Include\GemTransformNode.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

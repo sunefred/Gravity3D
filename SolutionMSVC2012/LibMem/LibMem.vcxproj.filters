@@ -14,19 +14,7 @@
     <ClInclude Include="..\..\LibMem\Include\Mem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\LibMem\Include\MemMath.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\LibMem\Include\MemMatrix.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\LibMem\Include\MemMatrix2x2.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\LibMem\Include\MemMatrix3x3.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\LibMem\Include\MemMatrix4x4.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\LibMem\Include\MemMatrixXxY.h">
@@ -44,21 +32,15 @@
     <ClInclude Include="..\..\LibMem\Include\MemVector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\LibMem\Include\MemVector2.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\LibMem\Include\MemVector3.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\LibMem\Include\MemVector4.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\LibMem\Include\MemVectorX.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\LibMem\Include\MemGlobals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\LibMem\Src\MemMath.cpp">
+    <ClCompile Include="..\..\LibMem\Src\MemGlobals.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -228,6 +228,10 @@ MeshLoader::create( const unsigned int _primitivesCount,
 		clear();
 		GEM_ERROR( e.what() );
 	}
+
+
+	// we got this far, so we are ok to setup member variables
+	isLoaded_ = true;
 }
 
 void

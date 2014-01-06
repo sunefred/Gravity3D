@@ -19,7 +19,7 @@ OrbitalController::OrbitalController( )
 	, y_(0)
 	, cameraPtr_(NULL)
 	, cameraPivotPtr_(NULL)
-	, rotSpeed_(-Math::HALFPI/360)
+	, rotSpeed_(-Mem::HALFPI/360)
 	, zoomSpeed_(2.0f/1000.0f)
 {}
 

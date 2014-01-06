@@ -27,7 +27,7 @@
 //	--------------
 //	In many cases it useful to have data live _only_ on the GPU, for instance
 //	when doing transform feedback. For these cases it would be practical to
-//	keep the Allocator---oLoader---oRenderStage system intact. In this case the
+//	keep the Allocator---oLoader---oRenderState system intact. In this case the
 //	Allocator would simply act a specification sheet for the type of data to 
 //	allocate on GPU. Currently this will allocate the data on the CPU aswell
 //	because there is not way to specify an allocator without allocating data.
@@ -222,6 +222,19 @@ public:
 		return true;
 	}
 
+	// mass read from pointer. no boundary check on pointer (obviously)
+	template<typename T>
+	bool read( T* e, const unsigned int count,
+			   const unsigned int offset = 0, const unsigned int stride = 1 )
+	{
+		for ( unsigned int i = offset; i < count; i+=stride )
+		{
+			if ( !read<T>( &(e[i]) ) )
+				return false;
+		}
+		return true;
+	}
+
 	template<typename T>
 	bool write( const T& e )
 	{
@@ -240,6 +253,19 @@ public:
 		// write element and increase pointer
 		*cur = e;
 		cur_ = static_cast<void*>(++cur);
+		return true;
+	}
+
+	// mass write from pointer. no boundary check on pointer (obviously)
+	template<typename T>
+	bool write( const T* e, const unsigned int count,
+				const unsigned int offset = 0, const unsigned int stride = 1 )
+	{
+		for ( unsigned int i = offset; i < count; i+=stride )
+		{
+			if ( !write<T>( e[i] ) )
+				return false;
+		}
 		return true;
 	}
 
@@ -279,21 +305,21 @@ public:
 
 	unsigned int getBitsPerElement( ) const { return bitsPerElement_; }
 
-	unsigned int getNumElements( ) const { return numElements_; }
+	unsigned int getElementCount( ) const { return elementCount_; }
 
 	unsigned int getByteCount( ) const { return byteCount_; };
 
-	unsigned getAllocCount() const { return allocCount_; }
+	unsigned int getAllocCount() const { return allocCount_; }
 
-	unsigned getReadCount() const { return readCount_; }
+	const unsigned int* getAllocCountPtr() const { return &allocCount_; }
 
-	unsigned getWriteCount() const { return writeCount_; }
+	unsigned int getReadCount() const { return readCount_; }
 
-	void resetAllocCount() { allocCount_ = 0; }
+	const unsigned int* getReadCountPtr() const { return &readCount_; }
 
-	void resetReadCount() { readCount_ = 0; }
+	unsigned int getWriteCount() const { return writeCount_; }
 
-	void resetWriteCount() { writeCount_ = 0; }
+	const unsigned int* getWriteCountPtr() const { return &writeCount_; }
 
 	bool isAlloc( ) const { return isAlloc_; }
 
@@ -324,7 +350,7 @@ private:
 	ALLOC_DIM dim_;
 	ALLOC_TYPE type_;
 	unsigned int bitsPerElement_;
-	unsigned int numElements_;
+	unsigned int elementCount_;
 	unsigned int byteCount_;
 	
 	// Activity counters for classes that want to track changes to the data.

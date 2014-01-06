@@ -292,14 +292,14 @@ public:
 
 
 				// crude double root detection (zero proximity)
-				if ( Math::iszero<T>( flo, 2*eps ) )
+				if ( Mem::iszero<T>( flo, 2*eps ) )
 				{
 					roots.push_back( flo );
 				}
 
 
 				// bracket roots and bisect
-				if ( Math::signnequal<T>( flo, fhi ) )
+				if ( Mem::signnequal<T>( flo, fhi ) )
 				{
 					this->bracket( &lo, &hi );
 					roots.push_back( this->bisect( lo, hi, maxit ) );
@@ -373,7 +373,7 @@ private:
 		{
 			T dx = one;
 			lo = hi - dx;
-			while ( Math::signequal<T>( this->evaluate( lo ),
+			while ( Mem::signequal<T>( this->evaluate( lo ),
 										this->evaluate( hi ) ) )
 			{
 				dx *= two;
@@ -384,7 +384,7 @@ private:
 		{
 			T dx = one;
 			hi = lo + dx;
-			while ( Math::signequal<T>( this->evaluate( lo ),
+			while ( Mem::signequal<T>( this->evaluate( lo ),
 										this->evaluate( hi ) ) )
 			{
 				dx *= two;
@@ -412,7 +412,7 @@ private:
 		for ( unsigned int i=0; i<maxit; ++i )
 		{
 
-			tolx = two * Math::max( fabs(lo), fabs(hi) ) * eps;
+			tolx = two * Mem::max( fabs(lo), fabs(hi) ) * eps;
 			if ( fabs( hi - lo ) <  tolx )
 			{
 				return lo;
@@ -420,7 +420,7 @@ private:
 
 			md = hlf * lo + hlf * hi;
 			//printf( "%d: %02.15f, %02.15f, %02.15f\n", i, lo, md, hi );
-			if ( Math::signequal( this->evaluate( lo ),
+			if ( Mem::signequal( this->evaluate( lo ),
 								  this->evaluate( md ) ) )
 			{
 				lo = md;

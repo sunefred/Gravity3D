@@ -55,7 +55,7 @@ public:
 
 	//-- gets and sets ---------------------------------------------------------
 
-	Allocator* const getSourcePtr()
+	Allocator* getSourcePtr()
 	{ return &source_; }
 
 	//std::string* const getSourcePtr()

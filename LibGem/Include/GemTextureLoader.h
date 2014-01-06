@@ -149,7 +149,7 @@ public:
 
 	void create( const unsigned int _width, const unsigned int _height, 
 				 const TEXTURE_FORMAT _textureFormat,
-				 const bool _generateMipLevels );
+				 const bool _generateMipLevels = false );
 
 	void save( const std::string& _path,
 			   const FILE_FORMAT _fileFormat = FILE_FORMAT_NONE );
@@ -189,14 +189,12 @@ private:
 	std::string	 path_;
 	FILE_FORMAT fileFormat_;
 
-	
 	// Mip level data store
 	unsigned int width_;
 	unsigned int height_;
 	TEXTURE_FORMAT textureFormat_;
 	unsigned int mipLevelCount_;
 	Allocator mipLevels_[MAX_MIP_LEVELS];
-	
 
 	// status flags
 	bool isLoaded_;

@@ -20,19 +20,28 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\AppGLFW\Shaders\basic.frag">
+    <None Include="..\..\AppGLFW\Shaders\pass_through.frag">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="..\..\AppGLFW\Shaders\basic.geom">
+    <None Include="..\..\AppGLFW\Shaders\pass_through.geom">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="..\..\AppGLFW\Shaders\basic.tesc">
+    <None Include="..\..\AppGLFW\Shaders\pass_through.tesc">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="..\..\AppGLFW\Shaders\basic.tese">
+    <None Include="..\..\AppGLFW\Shaders\pass_through.tese">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="..\..\AppGLFW\Shaders\basic.vert">
+    <None Include="..\..\AppGLFW\Shaders\pass_through.vert">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\..\AppGLFW\Shaders\solid_wireframe.vert">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\..\AppGLFW\Shaders\solid_wireframe.frag">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\..\AppGLFW\Shaders\solid_wireframe.geom">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

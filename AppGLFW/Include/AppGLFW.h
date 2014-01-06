@@ -92,6 +92,16 @@ public:
 
 
 private:
+
+	void createPrimitiveSphere( const float _radius,
+								const float _slices,
+								const float _stacks,
+								const PRIM_TYPE _primType = PRIM_TYPE_TRIANGLE);
+
+	void createPrimitiveCube( const float _size,
+							  const PRIM_TYPE _primType = PRIM_TYPE_TRIANGLE );
+
+private:
 	
 	// Global paths
 	std::string pathDataIn_;
@@ -107,11 +117,17 @@ private:
 	ShaderLoader geometryShader_;
 	ShaderLoader tessCtrlShader_;
 	ShaderLoader tessEvalShader_;
+	Allocator primitives_;
+	Allocator positions_;
+	Allocator normals_;
+	Allocator texCoords_;
 
 
 	// Rendering
-	RenderStage renderStage_;
+	RenderState renderState_;
 	float tesselationLevel_;
+	Vec4f solidColor_;
+	Vec4f wireColor_;
 
 	
 	// Nodes
@@ -129,7 +145,6 @@ private:
 
 	// Animators
 	long long frame_;
-
 };
 
 

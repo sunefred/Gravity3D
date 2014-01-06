@@ -23,7 +23,7 @@ Allocator::Allocator( )
 , dim_(ALLOC_DIM_NONE)
 , type_(ALLOC_TYPE_NONE)
 , bitsPerElement_(0)
-, numElements_(0)
+, elementCount_(0)
 , byteCount_(0)
 , allocCount_(0)
 , readCount_(0)
@@ -33,12 +33,12 @@ Allocator::Allocator( )
 
 Allocator::Allocator( const Allocator& other )
 {
-	this->copy( other );
+	copy( other );
 }
 
 Allocator::~Allocator( )
 {
-	this->clear();
+	clear();
 }
 
 //-- copy and clear ------------------------------------------------------------
@@ -56,7 +56,7 @@ Allocator::copy( const Allocator& other )
 	cur_ = ptr_ = static_cast<void*>(newPtr);
 
 
-	// copy data
+	// copy data (deep copy)
 	unsigned char* otherPtr = static_cast<unsigned char*>(other.ptr_);
 	for ( unsigned int i=0; i<byteCount_; ++i )
 	{
@@ -71,7 +71,7 @@ Allocator::copy( const Allocator& other )
 	dim_ = other.dim_;
 	type_ = other.type_;
 	bitsPerElement_ = other.bitsPerElement_;
-	numElements_ = other.numElements_;
+	elementCount_ = other.elementCount_;
 	byteCount_ = other.byteCount_;
 	allocCount_ = other.allocCount_;
 	readCount_ = other.readCount_;
@@ -94,7 +94,7 @@ Allocator::clear( )
 	dim_				= ALLOC_DIM_NONE;
 	type_				= ALLOC_TYPE_NONE;
 	bitsPerElement_		= 0;
-	numElements_		= 0;
+	elementCount_		= 0;
 	byteCount_			= 0;
 	allocCount_			= allocCount_; // dont reset, lifetime counter
 	readCount_			= readCount_; // dont reset, lifetime counter
@@ -133,7 +133,7 @@ Allocator::alloc( ALLOC_FORMAT _format,
 	ALLOC_DIM dim;
 	ALLOC_TYPE type;
 	unsigned int bitsPerElement;
-	unsigned int numElements;
+	unsigned int elementCount;
 	unsigned int byteCount;
 
 
@@ -335,8 +335,8 @@ Allocator::alloc( ALLOC_FORMAT _format,
 
 
 	// calculate number of elements and byte count
-	numElements = width * height;
-	byteCount = std::ceil( numElements * (bitsPerElement / 8.0f) );
+	elementCount = width * height;
+	byteCount = std::ceil( elementCount * (bitsPerElement / 8.0f) );
 
 
 	// allocate data
@@ -359,7 +359,7 @@ Allocator::alloc( ALLOC_FORMAT _format,
 	dim_ = dim;
 	type_ = type;
 	bitsPerElement_ = bitsPerElement;
-	numElements_ = numElements;
+	elementCount_ = elementCount;
 	byteCount_ = byteCount;
 	allocCount_ += 1; // dont reset, lifetime counter
 	readCount_ = readCount_; // dont reset, lifetime counter

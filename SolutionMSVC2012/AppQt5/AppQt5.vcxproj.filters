@@ -20,14 +20,14 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="GeneratedFiles\Debug\moc_AppQt5.cpp">
-      <Filter>Generated Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\AppQt5\Src\AppQt5.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\AppQt5\Src\main.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_AppQt5.cpp">
+      <Filter>Generated Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -36,10 +36,19 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\Src\AppQt5\shaders\basic.frag">
+    <None Include="..\..\AppQt5\Shaders\pass_through.geom">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="..\..\..\Src\AppQt5\shaders\basic.vert">
+    <None Include="..\..\AppQt5\Shaders\pass_through.tesc">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\..\AppQt5\Shaders\pass_through.tese">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\..\AppQt5\Shaders\pass_through.vert">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="..\..\AppQt5\Shaders\pass_through.frag">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

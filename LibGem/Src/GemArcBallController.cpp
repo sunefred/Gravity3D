@@ -167,7 +167,7 @@ ArcBallController::mouseMoveFunc( const float _x,
 
 		/* no constraints, default but confusing rotation */
 		if ( false &&
-			 !Math::iszero<float>( 1.0f - p_old.dot( p_new ), 4 * eps ) )
+			 !Mem::iszero<float>( 1.0f - p_old.dot( p_new ), 4 * eps ) )
 		{
 			/** reset to saved state before rotating **/
 			(*cameraPivotPtr_) = cameraPivotCpy_;
@@ -182,7 +182,7 @@ ArcBallController::mouseMoveFunc( const float _x,
 		/* <- x -> constrain to PIVOT x-axis */
 		/* <- y -> constrain to PIVOT PARENT y-axis */
 		if ( true &&
-			 !Math::iszero<float>( 1.0f - p_old.dot( p_new ), 4 * eps ) )
+			 !Mem::iszero<float>( 1.0f - p_old.dot( p_new ), 4 * eps ) )
 		{
 			/** reset to saved state before rotating **/
 			(*cameraPivotPtr_) = cameraPivotCpy_;
@@ -195,9 +195,9 @@ ArcBallController::mouseMoveFunc( const float _x,
 			Vec3f py_new = (p_new - p_new.dot( axisyw ) * axisyw).normalize( );
 
 			/** <- x -> rotate around PIVOT PARENT y-axis */
-			if ( !Math::iszero<float>( 1.0f - py_old.dot( py_new ), 2 * eps ) )
+			if ( !Mem::iszero<float>( 1.0f - py_old.dot( py_new ), 2 * eps ) )
 			{
-				float s = Math::signum( axisyw.dot( py_old.cross( py_new ) ) );
+				float s = Mem::signum( axisyw.dot( py_old.cross( py_new ) ) );
 				float a = -s * acos( py_old.dot( py_new ) );
 				Vec3f axis = py_old.cross( py_new );
 				cameraPivotPtr_->rotate( a, axisy, TRANSFORM_MODE_PARENT );
@@ -210,9 +210,9 @@ ArcBallController::mouseMoveFunc( const float _x,
 			Vec3f px_new = (p_new - p_new.dot( axisxw ) * axisxw).normalize( );
 
 			/** <- y -> rotate around PIVOT x-axis */
-			if ( !Math::iszero<float>( 1.0f - px_old.dot( px_new ), 2 * eps ) )
+			if ( !Mem::iszero<float>( 1.0f - px_old.dot( px_new ), 2 * eps ) )
 			{
-				float s = Math::signum( axisxw.dot( px_old.cross( px_new ) ) );
+				float s = Mem::signum( axisxw.dot( px_old.cross( px_new ) ) );
 				float a = -s * acos( px_old.dot( px_new ) );
 				Vec3f axis = px_old.cross( px_new );
 				cameraPivotPtr_->rotate( a, axisx, TRANSFORM_MODE_LOCAL );

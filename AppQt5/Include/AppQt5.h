@@ -98,7 +98,7 @@ private:
 
 
 	// Rendering
-	RenderStage renderStage_;
+	RenderState renderState_;
 	float tesselationLevel_;
 
 	
