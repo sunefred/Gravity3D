@@ -1,12 +1,17 @@
 MILESTONES
 ===========
 
+
+loader	-----> mesh ----> allocator
+creator --|			|---> allocator
+					|---> allocator
+
+
 1. RenderState
 ------------
 RenderState fully functional with Renderbuffer, TransforFeedback and
 BufferedTexture.
 Debug output from RenderState to show its connections.
-A Demo application showcasing each.
 
 
 2. Primitive creation
@@ -20,21 +25,42 @@ Write creation code for
 	transform controller
 
 
-3. Virtual Texturing
------------------
+3. Transform Controller
+-----------------------
 
 
-4. Mocap Animator
----------------
+4. Demo: Shadows (PCSS/cascading?)
+---------------------------------
 
 
-5. Skeleton Animator
-------------------
+5. Demo: Depth of field (framebuffer demo)
+-----------------------------------------
 
 
+6. Demo: Virtual Texturing
+-------------------------
 
-6/1
+
+7. Mocap Loader/Animator
+------------------------
+
+
+8. Skeleton Loader/Animator
+---------------------------
+
+
+16/1
 ====
+
+
+13-15/1
+=======
+RenderState transforFeedback system
+RenderState OpenGL flags & vars system
+Maya script for exporting .obj files for RT applications, splits vertices when
+	there are multiple uv coords or normals per vertex.
+Created town_quads.obj and town_triangeles.obj with above exporter and QTOWN
+DemoShadowMapping added, not finished
 
 
 5/1

@@ -55,11 +55,18 @@ public:
 	unsigned int getPrimitivesCount() const
 	{ return primitivesCount_; }
 
+	PRIM_TYPE getPrimitivesType() const
+	{ return static_cast<PRIM_TYPE>( primitives_.getFormat() ); }
+
 	Allocator* getPrimitivesPtr()
 	{ return &primitives_; }
 
 	unsigned int getVertexCount( ) const
 	{ return vertexCount_; }
+
+	VERTEX_FORMAT getVertexAttributeFormat( const unsigned int _attrID ) const
+	{ return static_cast<VERTEX_FORMAT>(
+		vertexAttributes_[_attrID].getFormat() ); }
 
 	Allocator* getVertexAttributesPtr( const unsigned int _attrID )
 	{ return &vertexAttributes_[_attrID]; }

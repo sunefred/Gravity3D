@@ -22,6 +22,7 @@ MeshLoader::MeshLoader( )
 {
 }
 
+
 MeshLoader::~MeshLoader( )
 {
 	clear( );
@@ -45,7 +46,7 @@ MeshLoader::clear( )
 void
 MeshLoader::copy( const MeshLoader& other )
 {
-	// no deep copy needed
+	// no deep copy needed, allocators have deep copy implemented
 	(*this) = other;
 }
 

@@ -34,39 +34,44 @@ public:
 
 
 	//-- sets and gets ---------------------------------------------------------
+	
+	// viewport
+	void setViewport( const unsigned int _viewportWidth,
+					  const unsigned int _viewportHeight );
 
-	void setSize( const float _width, const float _height );
+	unsigned int getViewportWidth( ) const
+	{ return viewportWidth_; }
 
-	void setWidth( const float _width );
+	const unsigned int* getViewportWidthPtr() const
+	{ return &viewportWidth_; }
 
-	void setHeight( const float _height );
+	unsigned int getViewportHeight( ) const
+	{ return viewportHeight_; }
 
-	float getWidth( ) const { return width_; }
+	const unsigned int* getViewportHeightPtr() const
+	{ return &viewportHeight_; }
 
-	float getHeight( ) const { return height_; }
+	float getViewportAspect( ) const
+	{ return viewportAspect_; }
 
-	float getAspect( ) const { return aspect_; }
 
-	void setFrustum( const float _FOV, const float _nearz, const float _farz );
-
+	// frustum
+	void setFrustum( const float _frustumFOV,
+					 const float _frustumNearZ,
+					 const float _frustumFarZ );
 	void setFrustum( const Vec3f& _center, const float _radius );
 
-	float getFOV() const { return FOV_; }
+	float getFrustumFOV() const { return frustumFOV_; }
+	float getFrustumNearZ() const { return frustumNearZ_; }
+	float getFrustumFarZ() const { return frustumFarZ_; }
 
-	float getNearZ() const { return nearZ_; }
-	
-	float getFarZ() const { return farZ_; }
 
+	// matrices
 	Mat4f getViewMatrix( ) const { return viewMatrix_; }
-
 	Mat4f* getViewMatrixPtr( ) { return &viewMatrix_; }
-
 	Mat4f getProjMatrix( ) const { return projMatrix_; }
-
 	Mat4f* getProjMatrixPtr( ) { return &projMatrix_; }
-
 	Mat4f getTextureMatrix( ) const { return textureMatrix_; }
-
 	Mat4f* getTextureMatrixPtr( ) { return &textureMatrix_; }
 
 
@@ -87,20 +92,23 @@ private:
 
 	//-- view and proj matrices ------------------------------------------------
 
-	void updateViewMatrix( );
+	void updateViewMatrix();
+	void updateProjMatrix();
 
-	void updateProjMatrix( );
 
+private:
 
-	//-- member variables ------------------------------------------------------
+	// viewport
+	unsigned int viewportWidth_;	// width of camera "sensor"
+	unsigned int viewportHeight_;	// height of camera "sensor"
+	float viewportAspect_;			// width/height
 
-	float width_;					// width of camera "sensor"
-	float height_;					// height of camera "sensor"
-	float aspect_;					// width/height
-	float FOV_;						// field of view where 0 < fov < PI
-	float nearZ_;					// near plane of frustum
-	float farZ_;					// far plane of frustum
+	// frustum
+	float frustumFOV_;				// field of view where 0 < fov < PI
+	float frustumNearZ_;			// near plane of frustum
+	float frustumFarZ_;				// far plane of frustum
 	
+	// matrices
 	Mat4f viewMatrix_;				// updated on update
 	Mat4f projMatrix_;				// updated on setSize and setFrustum
 	Mat4f textureMatrix_;			// updated on update, setSize and setFrustum

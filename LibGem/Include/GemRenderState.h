@@ -4,9 +4,10 @@
 // http://www.opengl.org/registry/doc/glspec42.core.20120427.withchanges.pdf
 // http://www.opengl.org/registry/doc/glspec43.core.20130214.withchanges.pdf
 //
-// RenderState uses OpenGL buffers extensively, in fact no data set to this
-// class exists without being bound to a buffer object. There are two main 
-// advantages for OpenGL buffers
+// RenderState uses OpenGL buffers extensively, in fact wherever its possible
+// resource data exists as a buffer object before being being bound to a 
+// specific target. Shader sources and uniform data is the exception.
+// There are two main  advantages for OpenGL buffers
 //
 //		1. The buffer represents a general blob of data that can be bound
 //		   and rebound to many different targets through out its lifetime
@@ -24,96 +25,197 @@
 // for each Allocator* passed to the RenderState through one of the setX()
 // functions. The first invoked setX() for any Allocator* will determine it's
 // initial target. So if you invoke setVertexIndexData() you will get a buffer
-// with an initial binding to GL_ELEMENT_ARRAY_BUFFER. You can invoke a setX()
-// involving the same Allocator* which will mean that the OpenGL buffer object
-// will be bound and unbound to two targets during a single draw.
+// with an initial binding to GL_ELEMENT_ARRAY_BUFFER. You can invoke another
+// setY() involving the same Allocator* which will mean that the OpenGL buffer
+// object will be bound to two targets during a single draw.
 //
-// RenderState does not know the concept of compund objects such as Meshes it
+// RenderState does not know the concept of compound objects such as Meshes it
 // only knows about Allocator* correlated binding points in the OpenGL state,
 // and there are specific functions for each binding point. However  for
-// conveniece there are compund functions that setMesh that will call the
+// convenience there are compund functions such as setMesh that will call the
 // correct Allocator binding functions for you. Once that is done the 
-// connection to the Loader is lost.
+// connection to the MeshLoader is lost.
 //
-// Downsides of this generalisation.
+// Not all binding points in the OpenGL can use the buffer objects directly
+// as they might require to be translated or unpacked to a specific internal 
+// format that is not supported by the client side buffer object. This is true
+// for the texture and Framebuffer attachments specifically. There are specific
+// unpack and pack functions for each type for this translation.
 //
-// Not all objects in the OpenGL state are buffer objects. Textures and 
-// Framebuffer attachments specifically are their own data types. For textures
-// it is possible to use glTexImage to "copy" data from a buffer to a texture.
-// Does this really make a copy of the data?. For 
+// Bellow is the full list of used gl* commands used by this OpenGL state
+// implementation sorted by resource type. The y-axis represents the resource
+// lifetime from birt (declare) to it's death (undeclare). It also specifies
+// what triggers a specific set of commands, is it client side data change,
+// buffer data change or is it run every frame?
 //
 //
-//		TEXTURE					FRAMEBUFFER					VERTEXDATA				TRANSFORM FEEDBACK
+//
+//
+//
+//		BUFFER					VERTEX_DATA					SHADER
 //			
-// ----------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 //	|	DECLARE - create id's and allocate storage
-//	n		
-//	e	glGenBuffer()			same						same
-//	w	glBindBuffer()			same						same
-//  |	glBufferStorage()		same						same
-//	a	glBindBuffer(0)			same						same
-//  l
-//	l	-----------------------------------------------------------------------------------------
-//	o	DECLARE - create id's and allocate storage
-//  c
-//	|	glGenTextures()			glGenFramebuffers()			glGenVertexArrays()
-//	|	glTexImage2D(..., 0)	glBindFramebuffer()			glBindVertexArray()
-//	|							glDrawBuffers()				glBindBuffer()
-//	|							glGenRenderbuffers()		glBindVertexArray(0)	
-//	|							glRenderbufferStorage()	
-//	|							glFramebufferRenderbuffer()	
+//  d
+//	a	glGenBuffer()			glGenVertexArrays()
+//	t	glBindBuffer()			glBindVertexArray()
+//	a	glBufferStorage(..,0)	glBindBuffer(idx)
+//	|	glBindBuffer(0)			glBindBuffer(attr...)
+//	a							glVertexAttribPointer()	
+//	l							glEnableVertexAttribArray()	
+//	l							glBindVertexArray(0)	
+//	o
+//	c
 //	|
-//----------------------------------------------------------------------------------------------
-//  |	UPLOAD - upload RMA ---> buffer
-//  a		
-//	l	glBindBuffer()			same						same
-//	c	glBufferStorage()		same						same
-//	|	or glBufferData()
-//	c	glBindBuffer(0)			same						same
+//------------------------------------------------------------------------------
+//  |	UPLOAD - upload RAM ---> Buffer
+//  d		
+//	a	glBindBuffer()
+//	t	glBufferStorage()
+//	a	or glBufferData()
+//	|	glBindBuffer(0)
+//	c
 //	h
 //	n
 //	g
 //	|
-//----------------------------------------------------------------------------------------------
-//	|	UNPACK - upload buffer ---> texture/etc
+//------------------------------------------------------------------------------
+//	|	UNPACK - Buffer ---> Pixel Storage
 //	b	
-//	u	glBindBuffer()			glBindBuffer()			
-//	f	glBindTexture()			glWritePixels(..., 0)			
-//	|	glTexImage2D(..., 0)	glBindBuffer(0)			
-//	c	glBindTexture(0)									
-//	h	glBindBuffer(0)								
+//	u	
+//	f	
+//	|	
+//	c	
+//	h	
 //	n
 //	g
 //	|
-//-----------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //	|	BIND
 //	e
-//	v	glActiveTexture()		glBindFramebuffer()
-//	e	glBindTexture()			
-//	r	glBindSampler()
+//	v							glBindVertexArray()
+//	e	
+//	r	
 //	y
-//	|	-----------------------------------------------------------------------------------------
-//	f	
-//	r	DRAW												glDrawElements()
+//	|	------------------------------------------------------------------------
+//	f	DRAW
 //	a
-//	m	-----------------------------------------------------------------------------------------
-//	e	UNBIND
+//	m							glDrawElements()
+//	e
 //	|
-//	|	glActiveTexture(0)		glBindFramebuffer(0)	
-//	|	glBindTexture(0)
-//	|	glBindSampler(0)
+//	|	------------------------------------------------------------------------
+//	|	UNBIND
 //	|
-//------------------------------------------------------------------------------------------------
-//	|	PACK - download framebuffer/feedback/etc ---> buffer
+//	|							glBindVertexArray()
+//	|		
+//	|		
+//	|
+//------------------------------------------------------------------------------
+//	|	PACK - Pixel Storage ---> Buffer
 //	o	
-//	n	glBindBuffer()			glBindBuffer()
-//	|	glBindTexture()			glBindFramebuffer()
-//	w	glGetTexImage2D(..., 0)	glReadPixels(..., 0)
-//  r	glBindBuffer(0)			glBindFramebuffer(0)
-//  t	glBindTexture(0)		glBindBuffer(0)
+//	g
+//	l
+//	|		
+//	w		
+//  r		
+//  t		
 //	|
-// ------------------------------------------------------------------------------------------------
-//	|	DOWNLOAD - dowbload buffer ---> RAM
+// -----------------------------------------------------------------------------
+//	|	DOWNLOAD - Buffer ---> RAM
+//	o
+//	n			
+//	|	
+//	d	glBindBuffer(0)
+//	e
+//	m
+//	a
+//	n
+//	d
+//	|
+// -----------------------------------------------------------------------------
+//	|	UNDECLARE
+//	|
+//	|	glDetelBuffer(0)
+//	|
+//	|
+//	|
+// -----------------------------------------------------------------------------
+//
+//
+//
+//
+//
+//
+//		UNIFORM					TEXTURE					BUFFER TEXTURE
+//			
+// -----------------------------------------------------------------------------
+//	|	DECLARE - create id's and allocate storage
+//  d
+//	a	
+//	t	
+//	a	
+//	|	
+//	a	
+//	l	
+//	l	
+//	o
+//	c
+//	|
+//------------------------------------------------------------------------------
+//  |	UPLOAD - upload RAM ---> Buffer
+//  d		
+//	a	
+//	t	
+//	a	
+//	|	
+//	c
+//	h
+//	n
+//	g
+//	|
+//------------------------------------------------------------------------------
+//	|	UNPACK - Buffer ---> Pixel Storage
+//	b	
+//	u	
+//	f	
+//	|	
+//	c	
+//	h	
+//	n
+//	g
+//	|
+//------------------------------------------------------------------------------
+//	|	BIND
+//	e
+//	v	
+//	e	
+//	r	
+//	y
+//	|	------------------------------------------------------------------------
+//	f	DRAW
+//	a
+//	m	
+//	e
+//	|
+//	|	------------------------------------------------------------------------
+//	|	UNBIND
+//	|
+//	|	
+//	|		
+//	|		
+//	|
+//------------------------------------------------------------------------------
+//	|	PACK - Pixel Storage ---> Buffer
+//	o	
+//	g
+//	l
+//	|		
+//	w		
+//  r		
+//  t		
+//	|
+// -----------------------------------------------------------------------------
+//	|	DOWNLOAD - Buffer ---> RAM
 //	o
 //	n
 //	|
@@ -124,17 +226,107 @@
 //	n
 //	d
 //	|
-// ----------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 //	|	UNDECLARE
 //	|
-//	|	glBindBuffer()			same					same
-//	|	glGetBufferSubData()	same					same
-//	|	glBindBuffer(0)			same					same
-//	|
-//	|	-----------------------------------------------------------------------------------------
-//	|	UNDECLARE:
 //	|	
-//	|	glDetelBuffer(0)		same					same
+//	|
+//	|
+//	|
+// ------------------------------------------------------------------------------
+//
+//
+//
+//
+//
+//
+//		TRANSFORM FEEDBACK								FRAMEBUFFER
+//			
+// -----------------------------------------------------------------------------
+//	|	DECLARE - create id's and allocate storage
+//  d
+//	a	/* varyings after compile, before link */
+//	t	glTransformFeedbackVaryings()
+//	a	glGenTransformFeedbacks(,i)
+//	|	glBindBufferBase(,loc,buf)
+//	a	glBindTransformFeedback(0)
+//	l	GL_RASTERIZER_DISCARD
+//	l	
+//	o	
+//	c
+//	|
+//------------------------------------------------------------------------------
+//  |	UPLOAD - upload RAM ---> Buffer
+//  d		
+//	a	
+//	t	
+//	a	
+//	|	
+//	c
+//	h
+//	n
+//	g
+//	|
+//------------------------------------------------------------------------------
+//	|	UNPACK - Buffer ---> Pixel Storage
+//	b	
+//	u	
+//	f	
+//	|	
+//	c	
+//	h	
+//	n
+//	g
+//	|
+//------------------------------------------------------------------------------
+//	|	BIND
+//	e
+//	v	glBeginTransformFeedback()
+//	e	
+//	r	
+//	y
+//	|	------------------------------------------------------------------------
+//	f	DRAW
+//	a
+//	m	glDrawTransformFeedback()
+//	e	or glDrawArrays()
+//	|	
+//	|	
+//	|
+//	|	------------------------------------------------------------------------
+//	|	UNBIND
+//	|
+//	|	glEndTransformFeedback()
+//	|		
+//	|		
+//	|
+//------------------------------------------------------------------------------
+//	|	PACK - Pixel Storage ---> Buffer
+//	o	
+//	g
+//	l
+//	|		
+//	w		
+//  r		
+//  t		
+//	|
+// -----------------------------------------------------------------------------
+//	|	DOWNLOAD - Buffer ---> RAM
+//	o
+//	n
+//	|
+//	d
+//	e
+//	m
+//	a
+//	n
+//	d
+//	|
+// -----------------------------------------------------------------------------
+//	|	UNDECLARE
+//	|
+//	|	
+//	|
 //	|
 //	|
 //
@@ -204,6 +396,10 @@ public:
 	unsigned int getPackCount() const { return packCount_; }
 	const unsigned int* getPackCountPtr() const { return &packCount_; }
 
+	void increaseFeedbackCount() { feedbackCount_++; }
+	unsigned int getFeedbackCount() const { return feedbackCount_; }
+	const unsigned int* getFeedbackCountPtr() const { return &feedbackCount_; }
+
 	bool isDeclare() const { return isDeclared_; };
 
 
@@ -213,6 +409,15 @@ public:
 	void undeclare();
 	void upload();
 	void download();
+
+
+	//-- stream output ---------------------------------------------------------
+
+	friend std::ostream& operator<< (std::ostream& lhs,
+									 const BufferState& rhs)
+	{
+		// id, target, usage, format, height, width, bytecount
+	}
 
 
 private:
@@ -227,11 +432,13 @@ private:
 	Trackerui trackerAllocCount_;
 	Trackerui trackerWriteCount_;
 	Trackerui trackerPackCount_;
+	Trackerui trackerFeedbackCount_;
 	
 	// Counters and flags
 	unsigned int declareCount_;
 	unsigned int uploadCount_;
 	unsigned int packCount_;
+	unsigned int feedbackCount_;
 	bool isDeclared_;
 };
 
@@ -265,7 +472,7 @@ public:
 
 	void setIndexBuffer( BufferState* const _bufferStatePtr );
 	void setAttributeBuffer( BufferState* const _bufferStatePtr,
-							 unsigned int _attrID );
+							 unsigned int _attrIndex );
 
 	bool isDeclared() const { return isDeclared_; };
 
@@ -333,6 +540,18 @@ public:
 
 	void setFragmentShader( ShaderLoader* const _fragmentShaderLoaderPtr );
 
+	void setTransformFeedbackName( const std::string& _xbfName )
+	{ transformFeedbackNames_.push_back( _xbfName ); }
+
+	unsigned int getTransformFeedbackNameCount() const
+	{ return transformFeedbackNames_.size(); }
+
+	void enableTransformFeedbackInterleaved()
+	{ isTransformFeedbackInterleaved_ = true; }
+
+	void disableTransformFeedbackInterleaved()
+	{ isTransformFeedbackInterleaved_ = false; }
+
 	GLuint getProgramID() const { return programID_; }
 
 	unsigned int getDeclareCount() const { return declareCount_; }
@@ -359,6 +578,10 @@ private:
 	GLuint geometryShaderID_;
 	GLuint fragmentShaderID_;
 	GLuint programID_;
+
+	// Transform Feedback states
+	std::vector<std::string> transformFeedbackNames_;
+	bool isTransformFeedbackInterleaved_;
 
 	// Allocators and trackers
 	Allocator* vertexShaderDataPtr_;
@@ -473,7 +696,7 @@ public:
 	void setMipMap( BufferState* const _bufferStatePtr,
 					const unsigned int _mipLevel );
 
-	void setTextureUnit( unsigned int _textureUnit )
+	void setTextureUnit( TEXTURE_UNIT _textureUnit )
 	{ textureUnit_ = _textureUnit; }
 
 
@@ -494,7 +717,6 @@ private:
 	GLint	internalFormat_;
 	GLenum	format_;
 	GLenum	type_;
-	GLenum  textureUnit_;
 	GLuint samplerID_;
 
 	// Allocators and trackers
@@ -502,6 +724,7 @@ private:
 	Trackerui trackerBufferDeclareCount_[MAX_MIP_LEVELS];
 	Trackerui trackerBufferUploadCount_[MAX_MIP_LEVELS];
 	Trackerui trackerBufferPackCount_[MAX_MIP_LEVELS];
+	TEXTURE_UNIT textureUnit_;
 	unsigned int mipLevelCount_;
 
 	// Counters and flags
@@ -521,6 +744,56 @@ class BufferTextureState
 
 class TransformFeedbackState
 {
+
+public:
+
+	//-- constructors/destructor -----------------------------------------------
+
+	// default constructor
+	TransformFeedbackState();
+
+	// specialized constructors
+
+	// destructor
+	~TransformFeedbackState();
+
+
+	//-- copy and clear --------------------------------------------------------
+	
+	void clear();
+
+
+	//-- sets and gets ---------------------------------------------------------
+
+	unsigned int getAttachedBufferCount() const;
+
+	void setAttachment( BufferState* const _bufferStatePtr,
+						unsigned int xfbIndex_ );
+
+
+	//unsigned int getAttachmentCount( ) const
+	//{ return }
+
+	//-- Buffer <--> OpenGL functions ------------------------------------------
+
+	void declare();
+	void undeclare();
+	void bind();
+	void unbind();
+
+
+private:
+
+	// OpenGL variables
+	GLuint transformFeedbackID_;
+
+	// BufferStates and trackers
+	BufferState* bufferStatesPtr_[MAX_TRANSFORMFEEDBACK_ATTACHMENTS];
+	Trackerui trackerBufferDeclareCount_[MAX_TRANSFORMFEEDBACK_ATTACHMENTS];
+
+	// Counters and flags
+	bool hasTransformFeedback_;
+	bool isDeclared_;
 };
 
 
@@ -608,12 +881,41 @@ public:
 	void copy( ) {}
 
 	// implement this if you have pointers
-	void clear( ) {}
+	void clear();
 
 
 	//-- DRAW ------------------------------------------------------------------
 
 	void draw();
+
+
+	//-- OPENGL FLAGS & VARS ---------------------------------------------------
+
+	// clear color, depth, stencil
+	void setClear( const bool _isClearColor = false,
+				   const Vec4f& _clearColor = Vec4f::ZERO,
+				   const bool _isClearDepth = false,
+				   const float _clearDepth = 1.0f,
+				   const bool _isClearStencil = false,
+				   const int _clearStencil = 0 );
+
+	// culling
+	void setCulling( const bool _isCullFace = false,
+					 const CULL_FACE& _cullFace = CULL_FACE_BACK );
+
+	// depth test
+	void setDepthTest( const bool _isDepthTest = false,
+					   const bool _isDepthWrite = false,
+					   const DEPTH_FUNC& _depthFunc = DEPTH_FUNC_LESS );
+	
+	//polygon mode
+	void setPolygonMode( const POLYGON_MODE& _polygonMode = POLYGON_MODE_FILL );
+
+	// viewport size
+	void setViewport( const unsigned int _viewportWidth, 
+					  const unsigned int _viewportHeight );
+	void setViewportPtr( const unsigned int* _viewportWidthPtr, 
+						 const unsigned int* _viewportHeightPtr );
 
 
 	//-- INPUT: mesh data ------------------------------------------------------
@@ -623,7 +925,7 @@ public:
 	void setVertexIndexData( Allocator* const _allocatorPtr );
 
 	void setVertexAttributeData( Allocator* const _allocatorPtr, 
-									unsigned int _attr );
+									unsigned int _attrIndex );
 
 
 	//-- INPUT: shader program -------------------------------------------------
@@ -701,28 +1003,34 @@ public:
 	//-- INPUT: texture data ---------------------------------------------------
 
 	void setTexture( TextureLoader* const _textureLoaderPtr,
-					 unsigned int _textureUnit );
+					 TEXTURE_UNIT _textureUnit );
 
 	void setTexture( Allocator* const _allocatorPtr,
-					 unsigned int _textureUnit, unsigned int _mipLevel = 0 );
+					 TEXTURE_UNIT _textureUnit, unsigned int _mipLevel = 0 );
 
 
 	//-- INPUT: buffer texture -------------------------------------------------
 
-	void setBufferTexture( )
-	{
+	void setBufferTexture( TextureLoader* const _textureLoaderPtr,
+						   TEXTURE_UNIT _textureUnit );
 
-	}
+	//void setBufferTexture( Allocator* const _allocatorPtr,
+	//					   unsigned int _textureUnit, unsigned int _mipLevel = 0 );
 
 
 	//-- OUTOUT: transform feedback --------------------------------------------
 
+	void setTransformFeedback( MeshLoader* const _meshLoaderPtr );
+
 	void setTransformFeedback( Allocator* const _allocatorPtr,
-							   const std::string& _name )
-	{
-
-	}
-
+							   const std::string& _xbfName0,
+							   const std::string& _xbfName1 = "",
+							   const std::string& _xbfName2 = "",
+							   const std::string& _xbfName3 = "",
+							   const std::string& _xbfName4 = "",
+							   const std::string& _xbfName5 = "",
+							   const std::string& _xbfName6 = "",
+							   const std::string& _xbfName7 = "" );
 
 	//-- OUTOUT: frame buffer object -------------------------------------------
 
@@ -813,11 +1121,35 @@ private:
 	void bindFramebuffer();
 	void unbindFramebuffer();
 
-
 private:
 
+	// OPENGL FLAGS & VARS
+	// -------------------
+	// clear color, depth, stencil
+	bool isClearDepth_;
+	bool isClearColor_;
+	bool isClearStencil_;
+	Vec4f clearColor_;
+	float clearDepth_;
+	int clearStencil_;
+	// culling
+	bool isCullFace_;
+	CULL_FACE cullFace_;
+	// depth test
+	bool isDepthTest_;
+	bool isDepthWrite_;
+	DEPTH_FUNC depthFunc_;
+	// polygone mode
+	POLYGON_MODE polygonMode_;
+	// viewport size
+	unsigned int viewportWidth_;
+	unsigned int viewportHeight_;
+	const unsigned int* viewportWidthPtr_;
+	const unsigned int* viewportHeightPtr_;
+
+
 	// SHARED: Buffer Object
-	std::map<const Allocator*,BufferState> bufferStates_;
+	static std::map<const Allocator*,BufferState> bufferStates_;
 
 
 	// INPUT: Vertex Data
@@ -833,28 +1165,20 @@ private:
 
 	
 	// INPUT: TextureData
-	std::map<unsigned int,TextureState> textureStates_;
+	std::map<TEXTURE_UNIT,TextureState> textureStates_;
 
 
-	//-- INPUT: Texture Buffer Object ------------------------------------------
+	// INPUT: Texture Buffer Object
 
 
 
-	//-- OUTOUT: Transform Feedback --------------------------------------------
+	// OUTOUT: Transform Feedback
+	TransformFeedbackState transformFeedbackState_;
 
 
-	//-- OUTOUT: Frame Buffer Object -------------------------------------------
+
+	// OUTOUT: Frame Buffer Object
 	FramebufferState framebufferState_;
-
-	//Allocator* attachmentDataPtr_[1];
-	//GLuint attachmentBufferID_[1];
-	//GLuint attachmentTarget_[1];
-	//GLuint attachmentInternalFormat_[1];
-	//GLuint attachmentFormat_[1];
-	//GLuint attachmentType_[1];
-	//GLuint frameBufferObjectID_;
-	//GLuint attachmentRenderBufferID_[1];
-
 
 
 };

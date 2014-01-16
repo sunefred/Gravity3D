@@ -15,12 +15,15 @@ GEM_BEGIN_NAMESPACE
 
 CameraNode::CameraNode( )
 	: SceneNode()
-	, width_( 512 )
-	, height_( 512 )
-	, aspect_( 1 )
-	, FOV_( Mem::PI/2 )
-	, nearZ_( 0.0001 )
-	, farZ_( 10000 )
+	// viewport
+	, viewportWidth_( 512 )
+	, viewportHeight_( 512 )
+	, viewportAspect_( 1.0f )
+	// frustum
+	, frustumFOV_( Mem::PI/2 )
+	, frustumNearZ_( 0.0001 )
+	, frustumFarZ_( 10000 )
+	// matrices
 	, viewMatrix_(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1)
 	, projMatrix_(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1)
 	, textureMatrix_(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1)
@@ -35,25 +38,29 @@ CameraNode::~CameraNode( )
 //-- sets and gets -------------------------------------------------------------
 
 void
-CameraNode::setSize( const float _width, const float _height )
+CameraNode::setViewport( const unsigned int _viewportWidth,
+						 const unsigned int _viewportHeight )
 {
-	width_ = _width;
-	height_ = _height;
+	viewportWidth_ = _viewportWidth;
+	viewportHeight_ = _viewportHeight;
 
-	if ( height_ < 1 )
-		 height_ = 1.0f;
+	if ( viewportHeight_ < 1 )
+		 viewportHeight_ = 1;
 
-	aspect_ = width_/height_;
+	viewportAspect_ = static_cast<float>(viewportWidth_) / 
+					  static_cast<float>(viewportHeight_);
 
 	this->updateProjMatrix();
 }
 
 void
-CameraNode::setFrustum( const float _FOV, const float _nearZ, const float _farZ )
+CameraNode::setFrustum( const float _frustumFOV,
+						const float _nearFarZ,
+						const float _frustumFarZ )
 {
-	FOV_ = _FOV;
-	nearZ_= _nearZ;
-	farZ_ = _farZ;
+	frustumFOV_ = _frustumFOV;
+	frustumNearZ_= _nearFarZ;
+	frustumFarZ_ = _frustumFarZ;
 
 	this->updateProjMatrix();
 }
@@ -86,9 +93,9 @@ CameraNode::setFrustum( const Vec3f& _center, const float _radius )
 	float bn = b.norm();
 	float cn = c.norm();
 
-	FOV_ = 2 * atan2( an + _radius, bn );
-	nearZ_ = bn - _radius;
-	farZ_ = bn + _radius;
+	frustumFOV_ = 2 * atan2( an + _radius, bn );
+	frustumNearZ_ = bn - _radius;
+	frustumFarZ_ = bn + _radius;
 }
 
 
@@ -118,8 +125,8 @@ CameraNode::unprojectWindow2World( const Vec2f& _positionWindow )
 
 	// windows coordinates -> normalized device coordinates
 	// x,y is in the [-1,1] range and z is ON the near plane i.e -1
-	Vec4f p_ndc = Vec4f( 2.0f * (  _positionWindow[0] / width_ ) - 1.0f,
-					     2.0f * ( -_positionWindow[1] / height_ ) + 1.0f,
+	Vec4f p_ndc = Vec4f( 2.0f * (  _positionWindow[0]/viewportWidth_ ) - 1.0f,
+					     2.0f * ( -_positionWindow[1]/viewportHeight_ ) + 1.0f,
 					     -1.0f,
 					     1.0f );
 
@@ -127,7 +134,7 @@ CameraNode::unprojectWindow2World( const Vec2f& _positionWindow )
 	// normalized device coordinates -> clip space
 	// for points ON the clip plane (z=-nearz) the perspective divide is
 	// w = -z = nearz
-	Vec4f p_clip = p_ndc * height_;
+	Vec4f p_clip = p_ndc * viewportHeight_;
 
 
 	// clip space -> view space
@@ -175,10 +182,12 @@ CameraNode::updateProjMatrix( )
 	// opengl perspective projection matrix, same as gluPerspective()'
 	// good reference at http://www.songho.ca/opengl/gl_projectionmatrix.html
 	//
-	float yScale = 1.0f / tan( 0.5f * FOV_ );
-	float xScale = yScale / aspect_;
-	float zPlan1 = ( farZ_ + nearZ_ ) / ( nearZ_ - farZ_ );
-	float zPlan2 = 2 * farZ_ * nearZ_ / ( nearZ_ - farZ_ );
+	float yScale = 1.0f / tan( 0.5f * frustumFOV_ );
+	float xScale = yScale / viewportAspect_;
+	float zPlan1 = ( frustumFarZ_ + frustumNearZ_ ) / 
+				   ( frustumNearZ_ - frustumFarZ_ );
+	float zPlan2 = 2 * frustumFarZ_ * frustumNearZ_ / 
+					 ( frustumNearZ_ - frustumFarZ_ );
 
 	projMatrix_ = Mat4f( xScale,	0,		0,		0,
 						 0,			yScale,	0,		0,

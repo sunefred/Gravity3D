@@ -15,11 +15,17 @@ GEM_BEGIN_NAMESPACE
 //== CLASS DEFINITION ==========================================================
 
 
-//-- constructors/destructor -----------------------------------------------
+//-- define static members -----------------------------------------------------
+
+std::map<const Allocator*,BufferState> RenderState::bufferStates_;
+
+
+//-- constructors/destructor ---------------------------------------------------
 
 RenderState::RenderState()
 // all classes with good constructors, no pointers
 {
+	clear();
 }
 
 RenderState::~RenderState()
@@ -36,8 +42,39 @@ RenderState::~RenderState()
 	//undeclareBufferTextures();
 	//undeclareTransformFeedback();
 	undeclareFramebuffer();
+
+
+	// clear memory
+	clear();
 }
 
+void
+RenderState::clear()
+{
+	// OPENGL FLAGS & VARS
+	// -------------------
+	// clear color, depth, stencil
+	isClearDepth_ = false;
+	isClearColor_ = false;
+	isClearStencil_ = false;
+	clearColor_ = Vec4f::ZERO;
+	clearDepth_ = 1.0f;
+	clearStencil_ = 1;
+	// culling
+	isCullFace_ = false;
+	cullFace_ = CULL_FACE_BACK;
+	// depth test
+	isDepthTest_ = false;
+	isDepthWrite_ = false;
+	depthFunc_ = DEPTH_FUNC_LESS;
+	// polygone mode
+	polygonMode_ = POLYGON_MODE_FILL;
+	// viewport size
+	viewportWidth_ = 0;
+	viewportHeight_ = 0;
+	viewportWidthPtr_ = &viewportWidth_;
+	viewportHeightPtr_ = &viewportHeight_;
+}
 
 //-- the star function of the entire library -----------------------------------
 
@@ -54,7 +91,7 @@ RenderState::draw()
 	declareUniforms();
 	declareTextures();
 	//declareBufferTextures();
-	//declareTransformFeedback();
+	declareTransformFeedback();
 	declareFramebuffer();
 
 
@@ -67,7 +104,7 @@ RenderState::draw()
 
 	// UNPACK
 	// ------
-	// What: "Unpack" OpenGL Buffer to OpenGL VRAM/ON-DIE, concerns pixel data
+	// What: "Unpack" OpenGL Buffer to framebuffer/texture.
 	// When: Buffer data has been written too
 	unpackTextures();
 	//unpackBufferTextures();
@@ -82,8 +119,81 @@ RenderState::draw()
 	bindUniforms();
 	bindTextures();
 	//bindBufferTextures();
-	//bindTransformFeedback();
+	bindTransformFeedback();
 	bindFramebuffer();
+
+
+	// OPENGL FLAGS & VARIABLES
+	// ------------------------
+	// What: Set OpenGL flags and variables, set viewport and clear
+	// When: Every frame
+
+	// z-buffer
+	if ( isDepthTest_ )
+	{
+		glEnable( GL_DEPTH_TEST );
+		glDepthFunc( depthFunc_ );
+	}
+	else
+	{
+		glDisable( GL_DEPTH_TEST );
+	}
+	if ( isDepthWrite_ )
+	{
+		glDepthMask( GL_TRUE );
+	}
+	else
+	{
+		glDepthMask( GL_FALSE );
+	}
+
+	// culling
+	if ( isCullFace_ )
+	{
+		glEnable( GL_CULL_FACE );
+		glCullFace( cullFace_ );
+	}
+	else
+	{
+		glDisable( GL_CULL_FACE );
+	}
+
+	// polygon mode
+	glPolygonMode( GL_FRONT_AND_BACK, polygonMode_ );
+
+	// setup clear values
+	if ( isClearColor_ )
+	{
+		glClearColor( clearColor_[0], clearColor_[1],
+					  clearColor_[2], clearColor_[3] );
+	}
+	if ( isClearDepth_ )
+	{
+		glClearDepth( clearDepth_ );
+	}
+	if ( isClearStencil_ )
+	{
+		glClearStencil( clearStencil_ );
+	}
+
+	// viewport
+	glViewport( 0, 0, *viewportWidthPtr_, *viewportHeightPtr_ );
+
+	// clear and draw background
+	GLbitfield mask = 0;
+	if ( isClearColor_ )
+	{
+		mask |= GL_COLOR_BUFFER_BIT;
+	}
+	if ( isClearDepth_ )
+	{
+		mask |= GL_DEPTH_BUFFER_BIT;
+	}
+	if ( isClearStencil_ )
+	{
+		mask |= GL_STENCIL_BUFFER_BIT;
+	}
+	glClear( mask );
 
 
 	// DRAW
@@ -118,13 +228,13 @@ RenderState::draw()
 	unbindShaderProgram();
 	unbindTextures();
 	//unbindBufferTextures();
-	//unbindTransformFeedback();
+	unbindTransformFeedback();
 	unbindFramebuffer();
 
 
 	// PACK
 	// ----
-	// What: "Packs" OpenGL VRAM/ON-DIE to OpenGL Buffer. Concerns pixel data
+	// What: "Packs" framebuffer/textures to OpenGL Buffer.
 	// When: OpenGL governed data changed
 	packFramebuffer();
 
@@ -140,14 +250,77 @@ RenderState::draw()
 	// What: Release buffer storage, textures storage, free all ID's
 	// When: Not on draw. When re-declaring or when destructing RenderState
 
-
-
 }
+
+//== OPENGL FLAGS & VARS =======================================================
+
+//-- sets and gets -------------------------------------------------------------
+
+void
+RenderState::setClear( const bool _isClearColor,
+						const Vec4f& _clearColor,
+						const bool _isClearDepth,
+						const float _clearDepth,
+						const bool _isClearStencil,
+						const int _clearStencil )
+{
+	clearColor_ = _clearColor;
+	clearDepth_ = _clearDepth;
+	clearStencil_ = _clearStencil;
+	isClearDepth_ = _isClearColor;
+	isClearColor_ = _isClearDepth;
+	isClearStencil_ = _isClearStencil;
+}
+
+void
+RenderState::setCulling( const bool _isCullFace,
+							const CULL_FACE& _cullFace )
+{
+	isCullFace_ = _isCullFace;
+	cullFace_ = _cullFace;
+}
+
+void
+RenderState::setDepthTest( const bool _isDepthTest,
+							const bool _isDepthWrite,
+							const DEPTH_FUNC& _depthFunc )
+{
+	isDepthTest_ = _isDepthTest;
+	isDepthWrite_ = _isDepthWrite;
+	depthFunc_ = _depthFunc;
+}
+
+void
+RenderState::setPolygonMode( const POLYGON_MODE& _polygonMode )
+{
+	polygonMode_ = _polygonMode;
+}
+
+void
+RenderState::setViewport( const unsigned int _viewportWidth, 
+						  const unsigned int _viewportHeight )
+{
+	viewportWidth_ = _viewportWidth;
+	viewportHeight_ = _viewportHeight;
+	viewportWidthPtr_ = &viewportWidth_;
+	viewportHeightPtr_ = &viewportHeight_;
+}
+
+void
+RenderState::setViewportPtr( const unsigned int* _viewportWidthPtr, 
+							 const unsigned int* _viewportHeightPtr )
+{
+	viewportWidthPtr_ = _viewportWidthPtr;
+	viewportHeightPtr_ = _viewportHeightPtr;
+}
+
+
+//-- modify opengl state -------------------------------------------------------
 
 
 //== SHARED: BufferState =======================================================
 
-//-- constructors/destructor ----------------------------------------------
+//-- constructors/destructor ---------------------------------------------------
 
 BufferState::BufferState()
 {
@@ -182,11 +355,13 @@ BufferState::clear()
 	trackerAllocCount_.clear();
 	trackerWriteCount_.clear();
 	trackerPackCount_.clear();
+	trackerFeedbackCount_.clear();
 
 	// Counters and flags
 	declareCount_ = 0;
 	uploadCount_ = 0;
 	packCount_ = 0;
+	feedbackCount_ = 0;
 	isDeclared_ = 0;
 }
 
@@ -208,6 +383,7 @@ BufferState::setAllocator( Allocator* const _allocatorPtr )
 	trackerAllocCount_.set( allocatorPtr_->getAllocCountPtr(), 0 );
 	trackerWriteCount_.set( allocatorPtr_->getWriteCountPtr(), 0 );
 	trackerPackCount_.set( getPackCountPtr(), 0 );
+	trackerFeedbackCount_.set( getFeedbackCountPtr(), 0 );
 }
 
 
@@ -348,7 +524,8 @@ BufferState::download()
 
 
 	// If BUFFER has changed then download data to Allocator
-	if ( trackerPackCount_.greaterPtrCpy() )
+	if ( trackerPackCount_.greaterPtrCpy() || 
+		 trackerFeedbackCount_.greaterPtrCpy() )
 	{
 		glBindBuffer( initialTarget_, bufferID_ );
 		glGetBufferSubData( initialTarget_,
@@ -492,21 +669,21 @@ VertexState::setIndexBuffer( BufferState* const _bufferStatePtr )
 
 void
 VertexState::setAttributeBuffer( BufferState* const _bufferStatePtr, 
-								 unsigned int _attrID )
+								 unsigned int _attrIndex )
 {
 	// initial error handling
 	if ( !( _bufferStatePtr ) )
 	{
 		GEM_ERROR( "Buffer Object is not valid." );
 	}
-	if ( _attrID >= MAX_VERTEX_ATTRIBUTES )
+	if ( _attrIndex >= MAX_VERTEX_ATTRIBUTES )
 	{
 		GEM_ERROR( "Vertex Attribute index out of range." );
 	}
 
 	// setup pointer and trackers
-	attributeBufferPtr_[_attrID] = _bufferStatePtr;
-	trackerAttributeDeclareCount_[_attrID].set( 
+	attributeBufferPtr_[_attrIndex] = _bufferStatePtr;
+	trackerAttributeDeclareCount_[_attrIndex].set( 
 									_bufferStatePtr->getDeclareCountPtr(), 0 );
 }
 
@@ -572,14 +749,14 @@ RenderState::setVertexIndexData( Allocator* const _allocatorPtr )
 
 void
 RenderState::setVertexAttributeData( Allocator* const _allocatorPtr, 
-										unsigned int _attrID )
+										unsigned int _attrIndex )
 {
 	// initial error handling
 	if ( !( _allocatorPtr && _allocatorPtr->isAlloc() ) )
 	{
 		GEM_ERROR( "Vertex Attribute Data is not allocated." );
 	}
-	if ( _attrID >= MAX_VERTEX_ATTRIBUTES )
+	if ( _attrIndex >= MAX_VERTEX_ATTRIBUTES )
 	{
 		GEM_ERROR( "Vertex Attribute index out of range." );
 	}
@@ -602,7 +779,7 @@ RenderState::setVertexAttributeData( Allocator* const _allocatorPtr,
 
 
 	// set this as the Attribute Buffer Object
-	vertexState_.setAttributeBuffer( bufferStatePtr, _attrID );
+	vertexState_.setAttributeBuffer( bufferStatePtr, _attrIndex );
 }
 
 
@@ -896,6 +1073,10 @@ ProgramState::clear()
 	fragmentShaderID_ = GL_NONE;
 	programID_ = GL_NONE;
 
+	// Transform Feedback states
+	transformFeedbackNames_.clear();
+	isTransformFeedbackInterleaved_ = false;
+
 	// Allocators and trackers
 	vertexShaderDataPtr_ = NULL;
 	tessCtrlShaderDataPtr_ = NULL;
@@ -1157,7 +1338,8 @@ ProgramState::declare()
 	}
 
 
-	// create shader program
+
+	// attach shaders to program
 	programID_ = glCreateProgram();
 	if ( vertexShaderDataPtr_ )
 		glAttachShader( programID_, vertexShaderID_ );
@@ -1169,6 +1351,32 @@ ProgramState::declare()
 		glAttachShader( programID_, geometryShaderID_ );
 	if ( fragmentShaderDataPtr_ )
 		glAttachShader( programID_, fragmentShaderID_ );
+
+
+	// set transform feedback bindings, this HAS to be done before linking.
+	// The first name corresponds to index 0 in glBindBufferBase, the second
+	// to index 1 and so on.
+	unsigned int i = 0;
+	const char* varyings[MAX_TRANSFORMFEEDBACK_ATTACHMENTS];
+	std::vector<std::string>::iterator j = transformFeedbackNames_.begin();
+	std::vector<std::string>::iterator jend = transformFeedbackNames_.end();
+	for ( ; i < MAX_TRANSFORMFEEDBACK_ATTACHMENTS && j != jend; ++i, ++j )
+	{
+		varyings[i] = (*j).c_str();
+	}
+	if ( isTransformFeedbackInterleaved_ )
+	{
+		glTransformFeedbackVaryings( programID_, i, varyings,
+									 GL_INTERLEAVED_ATTRIBS );
+	}
+	else
+	{
+		glTransformFeedbackVaryings( programID_, i, varyings,
+									 GL_SEPARATE_ATTRIBS );
+	}
+
+
+	// Now we link and look for errors
 	glLinkProgram( programID_ );
 
 
@@ -1186,7 +1394,7 @@ ProgramState::declare()
 		glGetProgramInfoLog( programID_, infoLogSize,
 							 &infoLogSize, &infoLog[0] );
 		infoLog.resize( infoLog.length()-2 );
-		GEM_ERROR( "Shader Program Link Failed\n" 
+		GEM_ERROR( "Shader Program Link Failed\n"
 				   "==========================\n\n" +
 				   infoLog );
 	}
@@ -1818,6 +2026,25 @@ UniformState::bind()
 		break;
 
 	// matrices
+	//
+	// Beware that OpenGL stores data in column major format while LibGem
+	// stores data in row major format
+	//
+	//		OpenGL: [column][column][column]...   in linear memory
+	//		LibGem: [row][row][row]...	in linear memory
+	//
+	// Row major format is the format that corresponds to common indexing in
+	// math, it allows you to access element (i,j) i.e. row i, column j, as
+	// matrix[i][j]. Luckily for us OpenGL supplies the transpose option when
+	// registering uniforms. However beware that the constructors and indexing
+	// in GLSL works the opposite as it does in LibGem
+	//
+	//		mat3f m = mat3f( 1, 2, 3, 4, 5, 6, 7, 8, 9 ) => [ 1 4 7
+	//														  2 5 8
+	//														  3 6 7 ];
+	//		
+	//		m[0][2] => 3
+	//
 	case ALLOC_FORMAT_MAT2_32F:
 		glUniformMatrix4fv( location_, count_, GL_TRUE,
 							reinterpret_cast<const GLfloat*>( ptr_ ) );
@@ -1911,7 +2138,6 @@ TextureState::clear()
 	internalFormat_ = GL_NONE;
 	format_ = GL_NONE;
 	type_ = GL_NONE;
-	textureUnit_ = 0;
 	samplerID_ = 0;
 
 	// Allocators and trackers
@@ -1922,6 +2148,7 @@ TextureState::clear()
 		trackerBufferUploadCount_[i].clear();
 		trackerBufferPackCount_[i].clear();
 	}
+	textureUnit_ = TEXTURE_UNIT_0;
 	mipLevelCount_ = 0;
 
 	// Counters and flags
@@ -1962,7 +2189,7 @@ TextureState::setMipMap( BufferState* const _bufferStatePtr,
 
 void
 RenderState::setTexture( TextureLoader* const _textureLoaderPtr,
-						 unsigned int _textureUnit )
+						 TEXTURE_UNIT _textureUnit )
 {
 	// initial error handling
 	if ( !( _textureLoaderPtr && _textureLoaderPtr->isLoaded() ) )
@@ -1984,7 +2211,7 @@ RenderState::setTexture( TextureLoader* const _textureLoaderPtr,
 
 void
 RenderState::setTexture( Allocator* const _allocatorPtr,
-						 unsigned int _textureUnit, unsigned int _mipLevel )
+						 TEXTURE_UNIT _textureUnit, unsigned int _mipLevel )
 {
 	if ( !( _allocatorPtr && _allocatorPtr->isAlloc() ) )
 	{
@@ -2432,8 +2659,8 @@ void
 RenderState::declareTextures()
 {
 	// setup iterators before loop
-	std::map<unsigned int,TextureState>::iterator i = textureStates_.begin();
-	std::map<unsigned int,TextureState>::iterator iend = textureStates_.end();
+	std::map<TEXTURE_UNIT,TextureState>::iterator i = textureStates_.begin();
+	std::map<TEXTURE_UNIT,TextureState>::iterator iend = textureStates_.end();
 
 
 	// Declare each uniform
@@ -2447,8 +2674,8 @@ void
 RenderState::undeclareTextures()
 {
 	// setup iterators before loop
-	std::map<unsigned int,TextureState>::iterator i = textureStates_.begin();
-	std::map<unsigned int,TextureState>::iterator iend = textureStates_.end();
+	std::map<TEXTURE_UNIT,TextureState>::iterator i = textureStates_.begin();
+	std::map<TEXTURE_UNIT,TextureState>::iterator iend = textureStates_.end();
 
 
 	// Declare each uniform
@@ -2462,8 +2689,8 @@ void
 RenderState::unpackTextures()
 {
 	// setup iterators before loop
-	std::map<unsigned int,TextureState>::iterator i = textureStates_.begin();
-	std::map<unsigned int,TextureState>::iterator iend = textureStates_.end();
+	std::map<TEXTURE_UNIT,TextureState>::iterator i = textureStates_.begin();
+	std::map<TEXTURE_UNIT,TextureState>::iterator iend = textureStates_.end();
 
 
 	// Declare each uniform
@@ -2477,8 +2704,8 @@ void
 RenderState::bindTextures()
 {
 	// setup iterators before loop
-	std::map<unsigned int,TextureState>::iterator i = textureStates_.begin();
-	std::map<unsigned int,TextureState>::iterator iend = textureStates_.end();
+	std::map<TEXTURE_UNIT,TextureState>::iterator i = textureStates_.begin();
+	std::map<TEXTURE_UNIT,TextureState>::iterator iend = textureStates_.end();
 
 
 	// Declare each uniform
@@ -2492,8 +2719,8 @@ void
 RenderState::unbindTextures()
 {
 	// setup iterators before loop
-	std::map<unsigned int,TextureState>::iterator i = textureStates_.begin();
-	std::map<unsigned int,TextureState>::iterator iend = textureStates_.end();
+	std::map<TEXTURE_UNIT,TextureState>::iterator i = textureStates_.begin();
+	std::map<TEXTURE_UNIT,TextureState>::iterator iend = textureStates_.end();
 
 
 	// Declare each uniform
@@ -2511,6 +2738,345 @@ RenderState::unbindTextures()
 //== OUTPUT: TransformFeedbackState ============================================
 
 
+//-- constructors/destructor ---------------------------------------------------
+
+TransformFeedbackState::TransformFeedbackState()
+{
+	clear();
+}
+
+
+TransformFeedbackState::~TransformFeedbackState()
+{
+	clear();
+	undeclare();
+}
+
+
+//-- copy and clear ------------------------------------------------------------
+	
+void
+TransformFeedbackState::clear()
+{
+	// OpenGL variables
+	transformFeedbackID_ = GL_NONE;
+
+	// BufferStates and trackers
+	for ( unsigned int i = 0; i < MAX_TRANSFORMFEEDBACK_ATTACHMENTS; ++i )
+	{
+		bufferStatesPtr_[i] = NULL;
+		trackerBufferDeclareCount_[i].clear();
+	}
+
+	// Counters and flags
+	hasTransformFeedback_ = false;
+	isDeclared_ = false;
+}
+
+
+//-- sets and gets -------------------------------------------------------------
+
+void
+TransformFeedbackState::setAttachment( BufferState* const _bufferStatePtr,
+									   const unsigned int _xfbIndex )
+{
+	// initial error handling
+	if ( !( _bufferStatePtr ) )
+	{
+		GEM_ERROR( "Buffer Object is not valid." );
+	}
+	if ( _xfbIndex >= MAX_TRANSFORMFEEDBACK_ATTACHMENTS )
+	{
+		GEM_ERROR( "Transform Feedback index out of range." );
+	}
+
+
+	// setup pointer and trackers
+	bufferStatesPtr_[_xfbIndex] = _bufferStatePtr;
+	trackerBufferDeclareCount_[_xfbIndex].set( 
+		_bufferStatePtr->getDeclareCountPtr(), 0 );
+}
+
+unsigned int
+TransformFeedbackState::getAttachedBufferCount() const
+{
+	// count number of attached buffers
+	unsigned int attachedBufferCount = 0;
+	for ( unsigned int i = 0; i < MAX_TRANSFORMFEEDBACK_ATTACHMENTS; ++i )
+	{
+		if ( bufferStatesPtr_[i] != NULL )
+		{
+			attachedBufferCount++;
+		}
+	}
+	return attachedBufferCount;
+}
+
+void
+RenderState::setTransformFeedback( MeshLoader* const _meshLoaderPtr )
+{
+	// initial error handling
+	if ( !( _meshLoaderPtr && _meshLoaderPtr->isLoaded() ) )
+	{
+		GEM_ERROR( "Mesh data is not loaded." );
+	}
+
+
+	//
+	GEM_ERROR( "Settings transform feedback with a mesh is currently"
+			   "unsupported" );
+
+}
+
+void
+RenderState::setTransformFeedback( Allocator* const _allocatorPtr,
+								   const std::string& _xbfName0,
+								   const std::string& _xbfName1,
+								   const std::string& _xbfName2,
+								   const std::string& _xbfName3,
+								   const std::string& _xbfName4,
+								   const std::string& _xbfName5,
+								   const std::string& _xbfName6,
+								   const std::string& _xbfName7 )
+{
+	// initial error handling
+	if ( !( _allocatorPtr && _allocatorPtr->isAlloc() ) )
+	{
+		GEM_ERROR( "Data is not allocated." );
+	}
+
+
+	// save initial feedback name and buffer count
+	unsigned int nameCount = programState_.getTransformFeedbackNameCount();
+	unsigned int bufferCount = transformFeedbackState_.getAttachedBufferCount();
+
+
+	// Get the related BufferState to this Allocator, create new if needed
+	BufferState* bufferStatePtr;
+	if ( bufferStates_.count( _allocatorPtr ) == 0 )
+	{
+		bufferStatePtr = &(bufferStates_[_allocatorPtr]);
+		bufferStatePtr->setAllocator( _allocatorPtr );
+		bufferStatePtr->setInitialTarget( GL_ARRAY_BUFFER );
+		bufferStatePtr->setInitialUsage( GL_DYNAMIC_DRAW );
+	}
+	else
+	{
+		bufferStatePtr = &(bufferStates_[_allocatorPtr]);
+	}
+
+
+	// Add the buffer to transform feedback object 
+	// 
+	// Transform feedback allows to set any index, but here we simply set it
+	// one at the next empty slot to match the named feedback vars.
+	//
+	transformFeedbackState_.setAttachment( bufferStatePtr, bufferCount );
+	bufferCount++;
+
+
+	// Add all the shader variable names to program state
+	if ( !_xbfName0.empty() )
+	{
+		programState_.setTransformFeedbackName( _xbfName0 );
+		nameCount++;
+	}
+	if ( !_xbfName1.empty() )
+	{
+		programState_.setTransformFeedbackName( _xbfName1 );
+		nameCount++;
+	}
+	if ( !_xbfName2.empty() )
+	{
+		programState_.setTransformFeedbackName( _xbfName2 );
+		nameCount++;
+	}
+	if ( !_xbfName3.empty() )
+	{
+		programState_.setTransformFeedbackName( _xbfName3 );
+		nameCount++;
+	}
+	if ( !_xbfName4.empty() )
+	{
+		programState_.setTransformFeedbackName( _xbfName4 );
+		nameCount++;
+	}
+	if ( !_xbfName5.empty() )
+	{
+		programState_.setTransformFeedbackName( _xbfName5 );
+		nameCount++;
+	}
+	if ( !_xbfName6.empty() )
+	{
+		programState_.setTransformFeedbackName( _xbfName6 );
+		nameCount++;
+	}
+	if ( !_xbfName7.empty() )
+	{
+		programState_.setTransformFeedbackName( _xbfName7 );
+		nameCount++;
+	}
+
+
+	// Here we set the feedback mode to separable or interleacved using the 
+	// following policy:
+	//
+	//		n buffer, n variable =>separable mode
+	//		1 buffer, >1 variable => interleaved mode
+	//
+	// Notice, there is no way to mix these two modes, i.e get interleaved mode
+	// for a group of variables and then separable mode for others. So make 
+	// sure you respect that. There will be an error issued if non of the 
+	// above policies are respected.
+	//
+	if ( bufferCount == nameCount )
+	{
+		programState_.disableTransformFeedbackInterleaved();
+	}
+	else if ( bufferCount == 1 && nameCount > 1 )
+	{
+		programState_.enableTransformFeedbackInterleaved();
+	}
+	else
+	{
+		GEM_WARNING( "Buffer count and transform feedback vars "
+					 " does not fit separable or interleaved mode." );
+	}
+
+}
+
+
+//-- Buffer <--> OpenGL functions ----------------------------------------------
+
+void
+TransformFeedbackState::declare()
+{
+	// TODO: initial error handling
+	{}
+
+
+	// Contrary to some other OpenGL objects (textures, buffers im looking at
+	// you) any change in format invalidates the entire vertex array object and
+	// an undeclare and re-declare is needed.
+	bool requireDeclare = false;
+	for ( unsigned int i = 0; i < MAX_TRANSFORMFEEDBACK_ATTACHMENTS; ++i )
+	{
+		requireDeclare |= trackerBufferDeclareCount_[i].greaterPtrCpy();
+	}
+	if ( requireDeclare )
+	{
+		undeclare();
+	}
+	else
+	{
+		return;
+	}
+
+
+	// Bind Buffer Objects to indices
+	//
+	// For OpenGL 4.2 core we use the "get index from varying names" method,
+	// that is we use glTransformFeedbackVaryings() with an array of variable
+	// names found in the shader program. The index into this array is our 
+	// binding points for glBindBufferBase() if you run in SEPARATE mode. If
+	// you enabled INTERLEAVED mode in the program then there is only one 
+	// binding point which has index = 0
+	//
+	// GL_ARB_enhanced_layouts which is core in Opengl 4.4 is sweet and should
+	// be used if/when moving to 4.4. With that you can use the layout qualifier
+	// to bind variables to indicies which means that you wont need a pre link
+	// call to glTransformFeedbackVaryings(). More info here:
+	//
+	// http://www.opengl.org/wiki/Transform_Feedback/In_Shader_Specification
+	//
+	glGenTransformFeedbacks( 1, &transformFeedbackID_ );
+	glBindTransformFeedback( GL_TRANSFORM_FEEDBACK, transformFeedbackID_ );
+	for ( unsigned int i = 0; i < MAX_TRANSFORMFEEDBACK_ATTACHMENTS; ++i )
+	{
+		if ( bufferStatesPtr_[i] && bufferStatesPtr_[i]->getAllocatorPtr() )
+		{
+			glBindBufferBase( GL_TRANSFORM_FEEDBACK_BUFFER,		 // target
+							  i,								 // xbf index
+							  bufferStatesPtr_[i]->getBufferID() );	// bufID
+		}
+	}
+	glBindTransformFeedback( GL_TRANSFORM_FEEDBACK, 0 );
+
+}
+
+void
+TransformFeedbackState::undeclare()
+{
+}
+
+void
+TransformFeedbackState::bind()
+{
+	// initial error handling
+	if ( !isDeclared_ )
+	{
+		return;
+	}
+
+
+	// Bind the transform feedback object and start capture mode
+	if ( glIsTransformFeedback ( transformFeedbackID_ ) )
+	{
+		glBindTransformFeedback( GL_TRANSFORM_FEEDBACK, transformFeedbackID_ );
+		glBeginTransformFeedback( GL_TRIANGLES );
+	}
+
+	
+}
+
+void
+TransformFeedbackState::unbind()
+{
+	// initial error handling
+	if ( !isDeclared_ )
+	{
+		return;
+	}
+
+
+	// Bind the transform feedback object and stop capture mode
+	glEndTransformFeedback();
+	glBindTransformFeedback( GL_TRANSFORM_FEEDBACK, 0 );
+
+
+	// We also need to increase feedback count on selected buffers
+	for ( unsigned int i = 0; i < MAX_TRANSFORMFEEDBACK_ATTACHMENTS; ++i )
+	{
+		if ( bufferStatesPtr_[i] && bufferStatesPtr_[i]->getAllocatorPtr() )
+		{
+			bufferStatesPtr_[i]->increaseFeedbackCount();
+		}
+	}
+}
+
+void
+RenderState::declareTransformFeedback()
+{
+	transformFeedbackState_.declare();
+}
+
+void
+RenderState::undeclareTransformFeedback()
+{
+	transformFeedbackState_.undeclare();
+}
+
+void
+RenderState::bindTransformFeedback()
+{
+	transformFeedbackState_.bind();
+}
+
+void
+RenderState::unbindTransformFeedback()
+{
+	transformFeedbackState_.unbind();
+}
 
 //== OUTPUT: FramebufferState ==================================================
 
@@ -2630,6 +3196,11 @@ RenderState::setFramebuffer( Allocator* const _allocatorPtr,
 
 	// set this as an attachment on the framebuffer
 	framebufferState_.setAttachment( bufferStatePtr, _framebufferAttachment );
+
+
+	// set viewport to the size of this allocator
+	setViewportPtr( _allocatorPtr->getWidthPtr(),
+					_allocatorPtr->getHeightPtr() );
 }
 
 //-- Buffer <--> OpenGL functions ----------------------------------------------
@@ -2675,20 +3246,68 @@ FramebufferState::declare()
 	{
 		if ( bufferStatesPtr_[i] &&  bufferStatesPtr_[i]->getAllocatorPtr() )
 		{
-			switch ( bufferStatesPtr_[i]->getAllocatorPtr()->getFormat() )
+			if ( i == FRAMEBUFFER_ATTACHMENT_COLOR0 || 
+				 i == FRAMEBUFFER_ATTACHMENT_COLOR1 || 
+				 i == FRAMEBUFFER_ATTACHMENT_COLOR2 || 
+				 i == FRAMEBUFFER_ATTACHMENT_COLOR3 )
 			{
-			case ALLOC_FORMAT_VEC3_32F:
-				target_[i] = GL_RENDERBUFFER;
-				internalFormat_[i] = GL_RGB32F;
-				format_[i] = GL_RGB;
-				type_[i] = GL_FLOAT;
-				break;
-			default:
-				target_[i] = GL_NONE;
-				internalFormat_[i] = GL_NONE;
-				format_[i] = GL_NONE;
-				type_[i] = GL_NONE;
-				GEM_ERROR( "Unsupported render buffer format." );
+				switch ( bufferStatesPtr_[i]->getAllocatorPtr()->getFormat() )
+				{
+				case ALLOC_FORMAT_SCALAR_32F:
+					target_[i] = GL_RENDERBUFFER;
+					internalFormat_[i] = GL_R32F;
+					format_[i] = GL_RED;
+					type_[i] = GL_FLOAT;
+					break;
+				case ALLOC_FORMAT_VEC3_32F:
+					target_[i] = GL_RENDERBUFFER;
+					internalFormat_[i] = GL_RGB32F;
+					format_[i] = GL_RGB;
+					type_[i] = GL_FLOAT;
+					break;
+				default:
+					target_[i] = GL_NONE;
+					internalFormat_[i] = GL_NONE;
+					format_[i] = GL_NONE;
+					type_[i] = GL_NONE;
+					GEM_ERROR( "Unsupported color buffer format." );
+				}
+			}
+			if ( i == FRAMEBUFFER_ATTACHMENT_DEPTH )
+			{
+				switch ( bufferStatesPtr_[i]->getAllocatorPtr()->getFormat() )
+				{
+				case ALLOC_FORMAT_SCALAR_32F:
+					target_[i] = GL_RENDERBUFFER;
+					internalFormat_[i] = GL_DEPTH_COMPONENT32;
+					format_[i] = GL_RED;
+					type_[i] = GL_FLOAT;
+					break;
+				default:
+					target_[i] = GL_NONE;
+					internalFormat_[i] = GL_NONE;
+					format_[i] = GL_NONE;
+					type_[i] = GL_NONE;
+					GEM_ERROR( "Unsupported depth buffer format." );
+				}
+			}
+			if ( i == FRAMEBUFFER_ATTACHMENT_STENCIL )
+			{
+				switch ( bufferStatesPtr_[i]->getAllocatorPtr()->getFormat() )
+				{
+				case ALLOC_FORMAT_SCALAR_8UI:
+					target_[i] = GL_RENDERBUFFER;
+					internalFormat_[i] = GL_STENCIL_INDEX8;
+					format_[i] = GL_RED;
+					type_[i] = GL_BYTE;
+					break;
+				default:
+					target_[i] = GL_NONE;
+					internalFormat_[i] = GL_NONE;
+					format_[i] = GL_NONE;
+					type_[i] = GL_NONE;
+					GEM_ERROR( "Unsupported stencil buffer format." );
+				}
 			}
 			switch ( i )
 			{

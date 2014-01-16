@@ -294,31 +294,23 @@ public:
 	//-- normal gets and sets --------------------------------------------------
 
 	ALLOC_FORMAT getFormat( ) const { return format_; }
-	
 	ALLOC_DIM getDim( ) const { return dim_; }
-
 	ALLOC_TYPE getType( ) const { return type_; }
 
 	unsigned int getWidth( ) const { return width_; }
-
+	const unsigned int* getWidthPtr() const { return &width_; }
 	unsigned int getHeight( ) const { return height_; }
+	const unsigned int* getHeightPtr() const { return &height_; }
 
 	unsigned int getBitsPerElement( ) const { return bitsPerElement_; }
-
 	unsigned int getElementCount( ) const { return elementCount_; }
-
 	unsigned int getByteCount( ) const { return byteCount_; };
-
 	unsigned int getAllocCount() const { return allocCount_; }
-
 	const unsigned int* getAllocCountPtr() const { return &allocCount_; }
 
 	unsigned int getReadCount() const { return readCount_; }
-
 	const unsigned int* getReadCountPtr() const { return &readCount_; }
-
 	unsigned int getWriteCount() const { return writeCount_; }
-
 	const unsigned int* getWriteCountPtr() const { return &writeCount_; }
 
 	bool isAlloc( ) const { return isAlloc_; }

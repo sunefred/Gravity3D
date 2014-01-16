@@ -139,8 +139,8 @@ OrbitalController::mouseMoveFunc( const float _x, const float _y,
 		float dx = _x - x_;
 		float dy = y_ - _y;
 		float o = cameraCpy_.getPosition().norm();
-		float f = cameraCpy_.getFOV();
-		float h = cameraCpy_.getHeight();
+		float f = cameraCpy_.getFrustumFOV();
+		float h = cameraCpy_.getViewportHeight();
 		float tx = -(dx/h) * o * f;
 		float ty = -(dy/h) * o * f;
 		Vec3f axisx = Vec3f( 1, 0, 0 );

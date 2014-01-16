@@ -33,8 +33,7 @@ ShaderLoader::~ShaderLoader()
 void
 ShaderLoader::copy( const ShaderLoader& other )
 {
-	// no deep copy needed
-	(*this) = other;
+	// no deep copy neededhis) = other;
 }
 
 void
